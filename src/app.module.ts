@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import { JobCategoryModule } from './job_category/job_category.module';
+import { SkillsCategoryModule } from './skills_category/skills_category.module';
+import { SkillsModule } from './skills/skills.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -20,6 +23,9 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
         logging: false,
       }),
     }),
+    JobCategoryModule,
+    SkillsCategoryModule,
+    SkillsModule,
   ],
   controllers: [],
   providers: [],
