@@ -1,6 +1,10 @@
 import { Module } from '@nestjs/common';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {ConfigModule, ConfigService} from "@nestjs/config";
+import { JobApplicationsModule } from './job-applications/job-applications.module';
+import { WorkExperienceModule } from './work-experience/work-experience.module';
+import { SavedJobsModule } from './saved-jobs/saved-jobs.module';
+import { JobsNotificationsModule } from './jobs-notifications/jobs-notifications.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -20,6 +24,10 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
         logging: false,
       }),
     }),
+    JobApplicationsModule,
+    WorkExperienceModule,
+    SavedJobsModule,
+    JobsNotificationsModule,
   ],
   controllers: [],
   providers: [],
