@@ -1,4 +1,3 @@
-
 import { Skill } from "../../skills/entities/skill.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -13,6 +12,6 @@ export class SkillsCategory {
   @Column({ length: 255 })
   description: string;
 
-  @OneToMany(() => Skill, (skill) => skill.category_id, { eager: true })
+  @OneToMany(() => Skill, (skill) => skill.category_id)
   skills: Skill[];
 }

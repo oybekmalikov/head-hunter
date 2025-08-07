@@ -13,31 +13,54 @@ export class SkillsCategoryService {
   ) {}
 
   async create(createSkillCategoryDto: CreateSkillsCategoryDto) {
-    return this.skillcategoryRepo.save(createSkillCategoryDto);
+    const crt = this.skillcategoryRepo.save(createSkillCategoryDto);
+    return {
+      message: "Skill category successfully created",
+      data: crt,
+      success: true,
+    };
   }
 
   async findAll() {
     const all = await this.skillcategoryRepo.find();
     if (!all || all.length === 0) {
-      return { message: "No skills categories found." };
+      return { message: "No skills categories found.", success: false };
     }
-    return all;
+    return {
+      message: "List of all skill categories",
+      data: all,
+      success: true,
+    };
   }
 
   async findOne(id: number) {
     const one = await this.skillcategoryRepo.findOneBy({ id });
     if (!one) {
-      return { message: `Skill category with ID ${id} not found.` };
+      return {
+        message: `Skill category with ID ${id} not found.`,
+        success: false,
+      };
     }
-    return one;
+    return {
+      message: "Skill category details",
+      date: one,
+      success: true,
+    };
   }
 
   async update(id: number, updateSkillCategoryDto: UpdateSkillsCategoryDto) {
     const upd = await this.skillcategoryRepo.update(id, updateSkillCategoryDto);
     if (!upd) {
-      return { message: "Failed to update the skill category." };
+      return {
+        message: "Failed to update the skill category.",
+        success: false,
+      };
     }
-    return this.skillcategoryRepo.findOne({ where: { id } });
+    return {
+      message: "Skill category successfully updated",
+      date: await this.skillcategoryRepo.findOne({ where: { id } }),
+      success: true,
+    };
   }
 
   async remove(id: number) {
@@ -45,10 +68,13 @@ export class SkillsCategoryService {
     if (del.affected === 0) {
       return {
         message: `Skill category with ID ${id} not found. Deletion failed.`,
+        success: false,
       };
     }
     return {
       message: `Skill category with ID ${id} was successfully deleted.`,
+      data: del.affected,
+      success: true,
     };
   }
 }
