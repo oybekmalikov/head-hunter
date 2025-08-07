@@ -5,6 +5,9 @@ import { JobApplicationsModule } from './job-applications/job-applications.modul
 import { WorkExperienceModule } from './work-experience/work-experience.module';
 import { SavedJobsModule } from './saved-jobs/saved-jobs.module';
 import { JobsNotificationsModule } from './jobs-notifications/jobs-notifications.module';
+import { JobCategoryModule } from './job-category/job-category.module';
+import { SkillsCategoryModule } from './skills-category/skills-category.module';
+import { SkillsModule } from './skills/skills.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -28,6 +31,9 @@ import { JobsNotificationsModule } from './jobs-notifications/jobs-notifications
     WorkExperienceModule,
     SavedJobsModule,
     JobsNotificationsModule,
+    JobCategoryModule,
+    SkillsCategoryModule,
+    SkillsModule,
   ],
   controllers: [],
   providers: [],
