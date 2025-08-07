@@ -8,6 +8,7 @@ import { JobsNotificationsModule } from './jobs-notifications/jobs-notifications
 import { JobCategoryModule } from './job-category/job-category.module';
 import { SkillsCategoryModule } from './skills-category/skills-category.module';
 import { SkillsModule } from './skills/skills.module';
+import { JobPostingsModule } from './job-postings/job-postings.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -34,6 +35,7 @@ import { SkillsModule } from './skills/skills.module';
     JobCategoryModule,
     SkillsCategoryModule,
     SkillsModule,
+    JobPostingsModule,
   ],
   controllers: [],
   providers: [],

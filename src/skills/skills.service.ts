@@ -16,20 +16,20 @@ export class SkillsService {
 	) {}
 
 	async create(createSkillDto: CreateSkillDto) {
-		const { name, description, category_id } = createSkillDto;
+		const { name, description, categoryId } = createSkillDto;
 		const category = await this.categoryRepo.findOneBy({
-			id: category_id,
+			id: categoryId,
 		});
 		if (!category) {
 			return {
-				message: `Skill category with ID ${category_id} not found.`,
+				message: `Skill category with ID ${categoryId} not found.`,
 				success: false,
 			};
 		}
 		const skill = this.skillRepo.create({
 			name,
 			description,
-			category_id: { id: category_id } as SkillsCategory,
+			categoryId: { id: categoryId } as SkillsCategory,
 		});
 		const savedSkill = await this.skillRepo.save(skill);
 
@@ -37,14 +37,14 @@ export class SkillsService {
 			message: "Skill successfully created",
 			data: {
 				...savedSkill,
-				category_id: category,
+				categoryId: category,
 			},
 			success: true,
 		};
 	}
 	async findAll() {
 		const all = await this.skillRepo.find({
-			relations: ["category_id"],
+			relations: ["categoryId"],
 		});
 
 		if (!all || all.length === 0) {
@@ -61,7 +61,7 @@ export class SkillsService {
 	async findOne(id: number) {
 		const one = await this.skillRepo.findOne({
 			where: { id },
-			relations: ["category_id"],
+			relations: ["categoryId"],
 		});
 
 		if (!one) {
@@ -76,15 +76,15 @@ export class SkillsService {
 	}
 
 	async update(id: number, updateSkillDto: UpdateSkillDto) {
-		const { name, description, category_id } = updateSkillDto;
+		const { name, description, categoryId } = updateSkillDto;
 
 		const updatedFields: any = {
 			name,
 			description,
 		};
 
-		if (category_id) {
-			updatedFields.category_id = { id: category_id } as SkillsCategory;
+		if (categoryId) {
+			updatedFields.categoryId = { id: categoryId } as SkillsCategory;
 		}
 
 		const upd = await this.skillRepo.update(id, updatedFields);
@@ -99,7 +99,7 @@ export class SkillsService {
 			message: "Skill successfully updated",
 			data: await this.skillRepo.findOne({
 				where: { id },
-				relations: ["category_id"],
+				relations: ["categoryId"],
 			}),
 			success: true,
 		};

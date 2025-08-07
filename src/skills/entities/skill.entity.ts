@@ -1,17 +1,36 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { SkillsCategory } from "../../skills-category/entities/skills_category.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity({ name: "skills" })
 export class Skill {
-	@PrimaryGeneratedColumn()
-	id: number;
+  @ApiProperty({
+    example: 1,
+    description: 'Unique identifier for the skill',
+  })
+  @PrimaryGeneratedColumn()
+  id: number;
 
-	@Column({ length: 55 })
-	name: string;
+  @ApiProperty({
+    example: 'JavaScript',
+    description: 'Name of the skill',
+    maxLength: 55,
+  })
+  @Column({ length: 55 })
+  name: string;
 
-	@Column({ length: 255 })
-	description: string;
+  @ApiProperty({
+    example: 'A scripting language used to create and control dynamic website content',
+    description: 'Detailed description of the skill',
+    maxLength: 255,
+  })
+  @Column({ length: 255 })
+  description: string;
 
-	@ManyToOne(() => SkillsCategory, (category_id) => category_id.skills)
-	category_id: SkillsCategory;
+  @ApiProperty({
+    type: () => SkillsCategory,
+    description: 'The category this skill belongs to',
+  })
+  @ManyToOne(() => SkillsCategory, (category) => category.skills)
+  categoryId: SkillsCategory;
 }

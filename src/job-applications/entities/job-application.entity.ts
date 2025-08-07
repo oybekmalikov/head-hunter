@@ -45,15 +45,15 @@ export class JobApplication {
 	@Column({enum: ['pending', 'accepted', 'rejected'], default: 'pending'})
 	status: string;
 
-	@ManyToOne(type => JobPosting)
-	@JoinColumn({name: 'jobPostingId', referencedColumnName: 'id'})
-	jobPosting: JobPosting;
+	// @ManyToOne(type => JobPosting)
+	// @JoinColumn({name: 'jobPostingId', referencedColumnName: 'id'})
+	// jobPosting: JobPosting;
 
-	@ManyToOne(type => JobSeeker)
-	@JoinColumn({name: 'jobSeekerId', referencedColumnName: 'id'})
-	jobSeeker: JobSeeker;
+	// @ManyToOne(type => JobSeeker)
+	// @JoinColumn({name: 'jobSeekerId', referencedColumnName: 'id'})
+	// jobSeeker: JobSeeker;
 	
-	@OneToMany(type => Chat, chat => chat.jobApplication)
-	@JoinColumn({name: 'jobApplicationId', referencedColumnName: 'id'})
-	chats: Chat[]
+	// @OneToMany(type => Chat, chat => chat.jobApplication)
+	// @JoinColumn({name: 'jobApplicationId', referencedColumnName: 'id'})
+	// chats: Chat[]
 }

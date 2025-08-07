@@ -15,11 +15,11 @@ export class SavedJob {
 	@Column()
 	jobSeekerId: number;
 
-	@ManyToOne((type) => JobPosting)
-	@JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-	jobPosting: JobPosting;
+	// @ManyToOne((type) => JobPosting)
+	// @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
+	// jobPosting: JobPosting;
 
-	@ManyToOne(() => JobSeeker)
-	@JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
-	jobSeeker: JobSeeker;
+	// @ManyToOne(() => JobSeeker)
+	// @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
+	// jobSeeker: JobSeeker;
 }

@@ -35,7 +35,7 @@ export class WorkExperience {
 	@Column({ length: 255,nullable: true })
 	description: string
 
-	@ManyToOne(() => JobSeeker)
-	@JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
-	jobSeeker: JobSeeker;
+	// @ManyToOne(() => JobSeeker)
+	// @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
+	// jobSeeker: JobSeeker;
 }

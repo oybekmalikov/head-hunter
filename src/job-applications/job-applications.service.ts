@@ -3,11 +3,12 @@ import { Repository } from "typeorm";
 import { CreateJobApplicationDto } from "./dto/create-job-application.dto";
 import { UpdateJobApplicationDto } from "./dto/update-job-application.dto";
 import { JobApplication } from "./entities/job-application.entity";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class JobApplicationsService {
 	constructor(
-		@Inject(JobApplication)
+		@InjectRepository(JobApplication)
 		private jobApplicationsRepo: Repository<JobApplication>
 	) {}
 	async create(createJobApplicationDto: CreateJobApplicationDto) {

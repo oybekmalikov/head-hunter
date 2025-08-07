@@ -31,5 +31,5 @@ export class CreateSkillDto {
   @IsNotEmpty({ message: 'Category ID is required.' })
   @IsInt({ message: 'Category ID must be an integer.' })
   @Min(1, { message: 'Category ID must be at least 1.' })
-  category_id: number;
+  categoryId: number;
 }

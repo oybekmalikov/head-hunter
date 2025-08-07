@@ -44,11 +44,11 @@ export class JobsNotification {
 	@Column({ default: false })
 	isWiewed: boolean;
 
-	@ManyToOne((type) => JobPosting)
-	@JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-	jobPosting: JobPosting;
+	// @ManyToOne((type) => JobPosting)
+	// @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
+	// jobPosting: JobPosting;
 
-	@ManyToOne(() => JobSeeker)
-	@JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
-	jobSeeker: JobSeeker;
+	// @ManyToOne(() => JobSeeker)
+	// @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
+	// jobSeeker: JobSeeker;
 }
