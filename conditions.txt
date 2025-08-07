@@ -1,0 +1,27 @@
+
+AUTH:
+
+signInAdmin -> 
+signOut ->
+refreshToken ->
+
+
+USERS: 
+
+create -> {
+
+}
+findAll -> {
+    
+}
+findOne -> {
+
+}
+update -> {
+
+}
+remove -> {
+
+}
+
+additional()
