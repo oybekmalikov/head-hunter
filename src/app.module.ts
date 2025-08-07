@@ -1,13 +1,20 @@
-import { Module } from '@nestjs/common';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {ConfigModule, ConfigService} from "@nestjs/config";
-import { JobApplicationsModule } from './job-applications/job-applications.module';
-import { WorkExperienceModule } from './work-experience/work-experience.module';
-import { SavedJobsModule } from './saved-jobs/saved-jobs.module';
-import { JobsNotificationsModule } from './jobs-notifications/jobs-notifications.module';
-import { JobCategoryModule } from './job-category/job-category.module';
-import { SkillsCategoryModule } from './skills-category/skills-category.module';
-import { SkillsModule } from './skills/skills.module';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { JobApplicationsModule } from "./job-applications/job-applications.module";
+import { WorkExperienceModule } from "./work-experience/work-experience.module";
+import { SavedJobsModule } from "./saved-jobs/saved-jobs.module";
+import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications.module";
+import { JobCategoryModule } from "./job-category/job-category.module";
+import { SkillsCategoryModule } from "./skills-category/skills-category.module";
+import { SkillsModule } from "./skills/skills.module";
+import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
+import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
+import { CompanyModule } from "./company/company.module";
+import { EduModule } from "./edu/edu.module";
+import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
+import { ChatModule } from "./chat/chat.module";
+import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -34,6 +41,11 @@ import { SkillsModule } from './skills/skills.module';
     JobCategoryModule,
     SkillsCategoryModule,
     SkillsModule,
+    JobSeekerSkillsModule,
+    JobSeekerPostingModule,
+    ChatModule,
+    EduModule,
+    CompanyModule,
   ],
   controllers: [],
   providers: [],
