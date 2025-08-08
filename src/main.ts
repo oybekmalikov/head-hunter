@@ -17,7 +17,7 @@ async function start() {
 			origin: '*',
 			methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 			credentials: false,
-		});
+		});		
 		const config = new DocumentBuilder()
 			.setTitle('Head Hunter Project')
 			.setDescription('Head Hunter REST API')

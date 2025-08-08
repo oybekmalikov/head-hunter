@@ -1,32 +1,32 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { JobSeekerSkill } from "./entities/job-seeker-skill.entity";
+import { JobSeekersService } from "../job-seekers/job-seekers.service";
+import { SkillsService } from "../skills/skills.service";
 import { CreateJobSeekerSkillDto } from "./dto/create-job-seeker-skill.dto";
 import { UpdateJobSeekerSkillDto } from "./dto/update-job-seeker-skill.dto";
-import { JobSeekerService } from "src/job-seeker/job-seeker.service";
-import { SkillService } from "src/skill/skill.service";
+import { JobSeekerSkill } from "./entities/job-seeker-skill.entity";
 
 @Injectable()
 export class JobSeekerSkillsService {
   constructor(
     @InjectRepository(JobSeekerSkill)
     private jobSeekerSkillsRepo: Repository<JobSeekerSkill>,
-    private jobSeekerService: JobSeekerService,
-    private skillService: SkillService
+    private jobSeekerService: JobSeekersService,
+    private skillService: SkillsService,
   ) {}
 
   async create(createJobSeekerSkillDto: CreateJobSeekerSkillDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      createJobSeekerSkillDto.job_seeker_id
+      createJobSeekerSkillDto.job_seeker_id,
     );
     const skill = await this.skillService.findOne(
-      createJobSeekerSkillDto.skill_id
+      createJobSeekerSkillDto.skill_id,
     );
 
     if (jobSeeker && skill) {
       const jobSeekerSkill = this.jobSeekerSkillsRepo.create(
-        createJobSeekerSkillDto
+        createJobSeekerSkillDto,
       );
       await this.jobSeekerSkillsRepo.save(jobSeekerSkill);
       return {
@@ -62,10 +62,14 @@ export class JobSeekerSkillsService {
   }
 
   async update(id: number, updateDto: UpdateJobSeekerSkillDto) {
-    const jobSeeker = await this.jobSeekerService.findOne(
-      updateDto.job_seeker_id
-    );
-    const skill = await this.skillService.findOne(updateDto.skill_id);
+    const jobSeeker =
+      updateDto.job_seeker_id !== undefined
+        ? await this.jobSeekerService.findOne(updateDto.job_seeker_id as number)
+        : null;
+    const skill =
+      updateDto.skill_id !== undefined
+        ? await this.skillService.findOne(updateDto.skill_id as number)
+        : null;
 
     if (jobSeeker && skill) {
       await this.jobSeekerSkillsRepo.update(id, updateDto);

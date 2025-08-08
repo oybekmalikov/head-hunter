@@ -1,11 +1,17 @@
 import { Module } from "@nestjs/common";
-import { JobSeekerSkillsService } from "./job-seeker-skills.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { JobSeekersModule } from "../job-seekers/job-seekers.module";
+import { SkillsModule } from "../skills/skills.module";
+import { JobSeekerSkill } from "./entities/job-seeker-skill.entity";
 import { JobSeekerSkillsController } from "./job-seeker-skills.controller";
-import { SkillModule } from "src/skill/skill.module";
-import { JobSeekerModule } from "src/job-seeker/job-seeker.module";
+import { JobSeekerSkillsService } from "./job-seeker-skills.service";
 
 @Module({
-  imports: [SkillModule, JobSeekerModule],
+  imports: [
+    TypeOrmModule.forFeature([JobSeekerSkill]),
+    SkillsModule,
+    JobSeekersModule,
+  ],
   controllers: [JobSeekerSkillsController],
   providers: [JobSeekerSkillsService],
   exports: [JobSeekerSkillsService],

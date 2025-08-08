@@ -1,22 +1,22 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Edu } from "./entities/edu.entity";
+import { JobSeekersService } from "../job-seekers/job-seekers.service";
 import { CreateEduDto } from "./dto/create-edu.dto";
 import { UpdateEduDto } from "./dto/update-edu.dto";
-import { JobSeekerService } from "src/job-seeker/job-seeker.service";
+import { Edu } from "./entities/edu.entity";
 
 @Injectable()
 export class EduService {
   constructor(
     @InjectRepository(Edu)
     private eduRepo: Repository<Edu>,
-    private jobSeekerService: JobSeekerService
+    private jobSeekerService: JobSeekersService,
   ) {}
 
   async create(createEduDto: CreateEduDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      createEduDto.job_seeker_id
+      createEduDto.job_seeker_id,
     );
 
     if (jobSeeker) {

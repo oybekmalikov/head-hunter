@@ -1,18 +1,22 @@
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { JobApplicationsModule } from "./job-applications/job-applications.module";
-import { WorkExperienceModule } from "./work-experience/work-experience.module";
-import { SavedJobsModule } from "./saved-jobs/saved-jobs.module";
-import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications.module";
-import { JobCategoryModule } from "./job-category/job-category.module";
-import { SkillsCategoryModule } from "./skills-category/skills-category.module";
-import { SkillsModule } from "./skills/skills.module";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { AuthModule } from "./auth/auth.module";
+import { ChatModule } from "./chat/chat.module";
 import { CompanyModule } from "./company/company.module";
 import { EduModule } from "./edu/edu.module";
-import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
-import { ChatModule } from "./chat/chat.module";
+import { EmployersModule } from "./employers/employers.module";
+import { JobApplicationsModule } from "./job-applications/job-applications.module";
+import { JobCategoryModule } from "./job-category/job-category.module";
 import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
+import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
+import { JobSeekersModule } from "./job-seekers/job-seekers.module";
+import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications.module";
+import { SavedJobsModule } from "./saved-jobs/saved-jobs.module";
+import { SkillsCategoryModule } from "./skills-category/skills-category.module";
+import { SkillsModule } from "./skills/skills.module";
+import { UsersModule } from "./users/users.module";
+import { WorkExperienceModule } from "./work-experience/work-experience.module";
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -26,7 +30,7 @@ import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.
         password: config.get<string>("DB_PASSWORD"),
         port: config.get<number>("DB_PORT"),
         database: config.get<string>("DB_NAME"),
-        entities: [__dirname + "dist/**/*.entity{.ts,.js}"],
+        entities: [__dirname + "/**/*.entity{.ts,.js}"],
         synchronize: true,
         autoLoadEntities: true,
         logging: false,
@@ -44,6 +48,10 @@ import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.
     ChatModule,
     EduModule,
     CompanyModule,
+    AuthModule,
+    UsersModule,
+    EmployersModule,
+    JobSeekersModule,
   ],
   controllers: [],
   providers: [],

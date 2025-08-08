@@ -1,11 +1,14 @@
 import { Module } from "@nestjs/common";
-import { EduService } from "./edu.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { JobSeekersModule } from "../job-seekers/job-seekers.module";
 import { EduController } from "./edu.controller";
-import { JonSeekerModule } from "src/job-seeker/job-seeker.module";
+import { EduService } from "./edu.service";
+import { Edu } from "./entities/edu.entity";
 
 @Module({
-  imports: [JonSeekerModule],
+  imports: [TypeOrmModule.forFeature([Edu]), JobSeekersModule],
   controllers: [EduController],
   providers: [EduService],
+  exports:[EduService]
 })
 export class EduModule {}

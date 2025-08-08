@@ -1,9 +1,17 @@
 import { Module } from "@nestjs/common";
-import { JobSeekerPostingService } from "./job-seeker-posting.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { JobSeekersModule } from "../job-seekers/job-seekers.module";
+import { SkillsModule } from "../skills/skills.module";
+import { JobSeekerPosting } from "./entities/job-seeker-posting.entity";
 import { JobSeekerPostingController } from "./job-seeker-posting.controller";
-import { JobSeekerModule } from "src/job-seeker/job-seeker.module";
+import { JobSeekerPostingService } from "./job-seeker-posting.service";
+
 @Module({
-  imports: [JobSeekerModule],
+  imports: [
+    TypeOrmModule.forFeature([JobSeekerPosting]),
+    JobSeekersModule,
+    SkillsModule,
+  ],
   controllers: [JobSeekerPostingController],
   providers: [JobSeekerPostingService],
 })

@@ -1,6 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { JobPosting } from "src/job-posting/entities/job-posting.entity";
-import { Employers } from "src/employers/entities/employers.entity";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity("companies")
 export class Company {
@@ -40,9 +38,5 @@ export class Company {
   @Column({ default: false })
   is_verified: boolean;
 
-  @OneToMany(() => JobPosting, (jobPosting) => jobPosting.company)
-  jobPostings: JobPosting[];
-
-  @OneToMany(() => Employers, (employers) => employers.company)
-  employers: Employers[];
+  // Relations will be added once corresponding modules are finalized
 }
