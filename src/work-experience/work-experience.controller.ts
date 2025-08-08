@@ -14,7 +14,7 @@ import { WorkExperienceService } from "./work-experience.service";
 
 @Controller("work-experience")
 export class WorkExperienceController {
-	constructor(private readonly workExperienceService: WorkExperienceService) {}
+	constructor(private readonly workExperienceService: WorkExperienceService) { }
 
 	@ApiOperation({
 		summary: "Create a new work experience",

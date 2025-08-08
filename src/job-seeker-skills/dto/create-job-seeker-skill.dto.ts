@@ -8,8 +8,8 @@ export class CreateJobSeekerSkillDto {
   experience: number;
 
   @IsNumber()
-  job_seeker_id: number;
+  jobSeekerId: number;
 
   @IsNumber()
-  skill_id: number;
+  skillId: number;
 }

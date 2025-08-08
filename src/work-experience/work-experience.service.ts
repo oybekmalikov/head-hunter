@@ -10,7 +10,7 @@ export class WorkExperienceService {
 	constructor(
 		@InjectRepository(WorkExperience)
 		private workExperienceRepo: Repository<WorkExperience>
-	) {}
+	) { }
 	async create(createWorkExperienceDto: CreateWorkExperienceDto) {
 		const workExperience = this.workExperienceRepo.save(
 			createWorkExperienceDto

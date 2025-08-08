@@ -4,6 +4,8 @@ import { UpdateJobSeekerPostingDto } from "./dto/update-job-seeker-posting.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { JobSeekerPosting } from "./entities/job-seeker-posting.entity";
 import { Repository } from "typeorm";
+import { SkillsService } from "../skills/skills.service";
+import { JobSeekerService } from "../job-seekers/job-seekers.service";
 
 @Injectable()
 export class JobSeekerPostingService {
@@ -11,18 +13,18 @@ export class JobSeekerPostingService {
     @InjectRepository(JobSeekerPosting)
     private jobSeekerPostingRepo: Repository<JobSeekerPosting>,
     private jobSeekerService: JobSeekerService,
-    private skillService: SkillService
-  ) {}
+    private skillService: SkillsService
+  ) { }
 
-  create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
-    const jobSeeker = this.jobSeekerService.findOne(
-      createJobSeekerPostingDto.job_seeker_id
+  async create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
+    const jobSeeker = await this.jobSeekerService.findOne(
+      +createJobSeekerPostingDto.jobSeekerId
     );
-    const skillsId = this.skillService.findOne(
-      createJobSeekerPostingDto.skills_id
+    const skillsId = await this.skillService.findOne(
+      +createJobSeekerPostingDto.skillsId
     );
-    if (jobSeeker && skillsId) {
-      const jobSeekerPosting = this.jobSeekerPostingRepo.create(
+    if (jobSeeker && +skillsId) {
+      const jobSeekerPosting = this.jobSeekerPostingRepo.save(
         createJobSeekerPostingDto
       );
       return {
@@ -38,30 +40,30 @@ export class JobSeekerPostingService {
     };
   }
 
-  findAll() {
+  async findAll() {
     return {
       message: "Job Seeker Postings retrieved successfully",
-      data: this.jobSeekerPostingRepo.find(),
+      data: await this.jobSeekerPostingRepo.find(),
       success: true,
     };
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return {
       message: "Job Seeker Posting retrieved successfully",
-      data: this.jobSeekerPostingRepo.findOne({ where: { id } }),
+      data: await this.jobSeekerPostingRepo.findOne({ where: { id } }),
       success: true,
     };
   }
 
-  update(id: number, updateJobSeekerPostingDto: UpdateJobSeekerPostingDto) {
-    const jobSeeker = this.jobSeekerService.findOne(
-      updateJobSeekerPostingDto.job_seeker_id
+  async update(id: number, updateJobSeekerPostingDto: UpdateJobSeekerPostingDto) {
+    const jobSeeker = await this.jobSeekerService.findOne(
+      Number(updateJobSeekerPostingDto.jobSeekerId)
     );
-    const skillsId = this.skillService.findOne(
-      updateJobSeekerPostingDto.skills_id
+    const skillsId = await this.skillService.findOne(
+      Number(updateJobSeekerPostingDto.skillsId)
     );
-    if (jobSeeker && skillsId) {
+    if (jobSeeker && +skillsId) {
       return {
         message: "Job Seeker Posting updated successfully",
         data: this.jobSeekerPostingRepo.update(id, updateJobSeekerPostingDto),
@@ -75,11 +77,20 @@ export class JobSeekerPostingService {
     };
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const jobSeekerPosting = this.jobSeekerPostingRepo.findOneBy({ id });
+    if (!jobSeekerPosting) {
+      return {
+        message: "Job Seeker Posting not found",
+        data: null,
+        success: false,
+      }
+    }
     return {
       message: "Job Seeker Posting deleted successfully",
-      data: this.jobSeekerPostingRepo.delete(id),
+      data: await this.jobSeekerPostingRepo.delete(id),
       success: true,
     };
+
   }
 }

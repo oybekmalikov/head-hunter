@@ -12,8 +12,8 @@ export class JobSeekerSkill {
   experience: number;
 
   @Column()
-  job_seeker_id: number;
+  jobSeekerId: number;
 
   @Column()
-  skill_id: number;
+  skillId: number;
 }

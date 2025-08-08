@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
 @Entity({ name: "jobs_notifications" })
 export class JobsNotification {
@@ -44,9 +45,9 @@ export class JobsNotification {
 	@Column({ default: false })
 	isWiewed: boolean;
 
-	@ManyToOne((type) => JobPosting)
-	@JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-	jobPosting: JobPosting;
+	// @ManyToOne((type) => JobPosting)
+	// @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
+	// jobPosting: JobPosting;
 
 	@ManyToOne(() => JobSeeker)
 	@JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })

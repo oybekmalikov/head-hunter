@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { JobApplication } from "../../job-applications/entities/job-application.entity";
-import { Recipient } from "../../recipient/entities/recipient.entity";
+// import { Recipient } from "../../recipient/entities/recipient.entity";
 
 @Entity("chat")
 export class Chat {
@@ -25,9 +25,9 @@ export class Chat {
   @Column()
   sender_id: number;
 
-  @Column()
-  @ManyToOne(() => Recipient, (recipient) => recipient.chats)
-  recipientId: number;
+  // @Column()
+  // @ManyToOne(() => Recipient, (recipient) => recipient.chats)
+  // recipientId: number;
 
   @Column()
   @ManyToOne(() => JobApplication, (jobApplication) => jobApplication.chats)

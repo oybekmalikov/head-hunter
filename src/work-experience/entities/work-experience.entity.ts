@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity"
 
 @Entity({ name: "work_experience" })
 export class WorkExperience {
@@ -32,7 +33,7 @@ export class WorkExperience {
 	isCurrent: boolean
 
 	@ApiProperty({ example: "Description", description: "The description" })
-	@Column({ length: 255,nullable: true })
+	@Column({ length: 255, nullable: true })
 	description: string
 
 	@ManyToOne(() => JobSeeker)

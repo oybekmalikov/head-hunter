@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
 @Entity({ name: "saved_jobs" })
 export class SavedJob {
@@ -15,9 +16,9 @@ export class SavedJob {
 	@Column()
 	jobSeekerId: number;
 
-	@ManyToOne((type) => JobPosting)
-	@JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-	jobPosting: JobPosting;
+	// @ManyToOne((type) => JobPosting)
+	// @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
+	// jobPosting: JobPosting;
 
 	@ManyToOne(() => JobSeeker)
 	@JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })

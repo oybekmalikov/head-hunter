@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { Edu } from "./entities/edu.entity";
 import { CreateEduDto } from "./dto/create-edu.dto";
 import { UpdateEduDto } from "./dto/update-edu.dto";
-import { JobSeekerService } from "src/job-seeker/job-seeker.service";
+import { JobSeekerService } from "src/job-seekers/job-seekers.service";
 
 @Injectable()
 export class EduService {

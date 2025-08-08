@@ -5,8 +5,8 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Chat } from "./entities/chat.entity";
 import { Repository } from "typeorm";
 import { JobApplicationsService } from "../job-applications/job-applications.service";
-import { SenderService } from "../sender/sender.service";
-import { RecipientService } from "../recipient/recipient.service";
+// import { SenderService } from "../sender/sender.service";
+// import { RecipientService } from "../recipient/recipient.service";
 
 @Injectable()
 export class ChatService {
@@ -14,22 +14,22 @@ export class ChatService {
     @InjectRepository(Chat)
     private chatRepo: Repository<Chat>,
     private jobApplicationsService: JobApplicationsService,
-    private senderService: SenderService,
-    private recipientService: RecipientService
+    // private senderService: SenderService,
+    // private recipientService: RecipientService
   ) {}
 
   async create(createChatDto: CreateChatDto) {
     const jobApplication = await this.jobApplicationsService.findOne(
       createChatDto.application_id
     );
-    const sender = await this.senderService.findOne(createChatDto.sender_id);
+    // const sender = await this.senderService.findOne(createChatDto.sender_id);
 
     if (!jobApplication) {
       throw new NotFoundException("Job application not found");
     }
-    if (!sender) {
-      throw new NotFoundException("Sender not found");
-    }
+    // if (!sender) {
+    //   throw new NotFoundException("Sender not found");
+    // }
 
     const chat = this.chatRepo.create(createChatDto);
     const savedChat = await this.chatRepo.save(chat);

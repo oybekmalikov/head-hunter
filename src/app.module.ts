@@ -8,13 +8,14 @@ import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications
 import { JobCategoryModule } from "./job-category/job-category.module";
 import { SkillsCategoryModule } from "./skills-category/skills-category.module";
 import { SkillsModule } from "./skills/skills.module";
-import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
-import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
+import { EmployersModule } from './employers/employers.module';
+import { UsersModule } from './users/users.module';
 import { CompanyModule } from "./company/company.module";
 import { EduModule } from "./edu/edu.module";
 import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
 import { ChatModule } from "./chat/chat.module";
 import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
+import { JobSeekersModule } from './job-seekers/job-seekers.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: ".env", isGlobal: true }),
@@ -46,6 +47,9 @@ import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.
     ChatModule,
     EduModule,
     CompanyModule,
+    UsersModule,
+    EmployersModule,
+    JobSeekersModule,
   ],
   controllers: [],
   providers: [],

@@ -4,8 +4,8 @@ import { Repository } from "typeorm";
 import { JobSeekerSkill } from "./entities/job-seeker-skill.entity";
 import { CreateJobSeekerSkillDto } from "./dto/create-job-seeker-skill.dto";
 import { UpdateJobSeekerSkillDto } from "./dto/update-job-seeker-skill.dto";
-import { JobSeekerService } from "src/job-seeker/job-seeker.service";
-import { SkillService } from "src/skill/skill.service";
+import { JobSeekerService } from "../job-seekers/job-seekers.service";
+import { SkillsService } from "../skills/skills.service";
 
 @Injectable()
 export class JobSeekerSkillsService {
@@ -13,15 +13,15 @@ export class JobSeekerSkillsService {
     @InjectRepository(JobSeekerSkill)
     private jobSeekerSkillsRepo: Repository<JobSeekerSkill>,
     private jobSeekerService: JobSeekerService,
-    private skillService: SkillService
+    private skillService: SkillsService
   ) {}
 
   async create(createJobSeekerSkillDto: CreateJobSeekerSkillDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      createJobSeekerSkillDto.job_seeker_id
+      createJobSeekerSkillDto.jobSeekerId
     );
     const skill = await this.skillService.findOne(
-      createJobSeekerSkillDto.skill_id
+      createJobSeekerSkillDto.skillId
     );
 
     if (jobSeeker && skill) {
@@ -63,9 +63,9 @@ export class JobSeekerSkillsService {
 
   async update(id: number, updateDto: UpdateJobSeekerSkillDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      updateDto.job_seeker_id
+      updateDto.jobSeekerId!
     );
-    const skill = await this.skillService.findOne(updateDto.skill_id);
+    const skill = await this.skillService.findOne(updateDto.skillId!);
 
     if (jobSeeker && skill) {
       await this.jobSeekerSkillsRepo.update(id, updateDto);
