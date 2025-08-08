@@ -8,8 +8,6 @@ import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications
 import { JobCategoryModule } from "./job-category/job-category.module";
 import { SkillsCategoryModule } from "./skills-category/skills-category.module";
 import { SkillsModule } from "./skills/skills.module";
-import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
-import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.module";
 import { CompanyModule } from "./company/company.module";
 import { EduModule } from "./edu/edu.module";
 import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
