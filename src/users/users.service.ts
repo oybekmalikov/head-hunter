@@ -32,6 +32,13 @@ export class UsersService {
 
   async findAll() {
     const users = await this.userRepo.find({relations: ["employers", "jobSeekers"]});
+    if (!users) {
+      return {
+        message: "Users not found",
+        users: [],
+        success: false
+      }
+    }
     return {
       users: users,
       status: 200
@@ -43,6 +50,13 @@ export class UsersService {
       where: { id },
       relations: ["employers", "jobSeekers"]
     });
+    if (!user) {
+      return {
+        message: "User not found",
+        user: null,
+        success: false
+      }
+    }
     return {
       user: user,
       status: 200
@@ -58,9 +72,11 @@ export class UsersService {
       const hashedPassword = await bcrypt.hash(updateUserDto.password, 7);
       updateUserDto.password = hashedPassword;
     }
+    await this.userRepo.update(id, updateUserDto);
     return {
       message: "User updated succesfully! ",
-      status: 200
+      status: 200,
+      success: true
     }
   }
 

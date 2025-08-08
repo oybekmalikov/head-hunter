@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsDateString, IsNotEmpty, IsNumber } from "class-validator";
 
 export class CreateJobSeekerDto {
     @ApiProperty({
@@ -11,10 +11,11 @@ export class CreateJobSeekerDto {
     userId: number;
 
     @ApiProperty({
-        example: "Ali",
-        description: "This is the job seeker's birth date"
+        example: "1995-03-15T00:00:00.000Z",
+        description: "Job seeker's birth date in ISO format"
     })
     @IsNotEmpty({ message: 'Date of birth is required' })
+    @IsDateString({}, { message: 'Date must be a valid ISO date string' })
     dateOdBirth: string;
 
     @ApiProperty({

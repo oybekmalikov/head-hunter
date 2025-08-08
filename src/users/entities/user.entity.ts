@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Employer } from "../../employers/entities/employer.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
+import { Roles } from "../../../constants";
 
 @Entity({name: "users"})
 export class User {
@@ -52,7 +53,7 @@ export class User {
         description: "This user's role"
     })
     @Column({ default: "user" })
-    role: string;
+    role: Roles;
 
     @ApiProperty({
         example: "/src/something/avatar.jpg",
