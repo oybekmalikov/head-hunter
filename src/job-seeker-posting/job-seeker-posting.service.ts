@@ -1,35 +1,42 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { JobSeekersService } from "../job-seekers/job-seekers.service";
+import { SkillsService } from "../skills/skills.service";
 import { CreateJobSeekerPostingDto } from "./dto/create-job-seeker-posting.dto";
 import { UpdateJobSeekerPostingDto } from "./dto/update-job-seeker-posting.dto";
-import { InjectRepository } from "@nestjs/typeorm";
 import { JobSeekerPosting } from "./entities/job-seeker-posting.entity";
-import { Repository } from "typeorm";
-import { SkillsService } from "../skills/skills.service";
-import { JobSeekerService } from "../job-seekers/job-seekers.service";
 
 @Injectable()
 export class JobSeekerPostingService {
   constructor(
     @InjectRepository(JobSeekerPosting)
     private jobSeekerPostingRepo: Repository<JobSeekerPosting>,
-    private jobSeekerService: JobSeekerService,
-    private skillService: SkillsService
-  ) { }
+    private jobSeekerService: JobSeekersService,
+    private skillService: SkillsService,
+  ) {}
 
   async create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
-    const jobSeeker = await this.jobSeekerService.findOne(
-      +createJobSeekerPostingDto.jobSeekerId
+    const jobSeekerResp = await this.jobSeekerService.findOne(
+      Number(createJobSeekerPostingDto.job_seeker_id),
     );
-    const skillsId = await this.skillService.findOne(
-      +createJobSeekerPostingDto.skillsId
+    const skillResp = await this.skillService.findOne(
+      Number(createJobSeekerPostingDto.skills_id),
     );
-    if (jobSeeker && +skillsId) {
-      const jobSeekerPosting = this.jobSeekerPostingRepo.save(
-        createJobSeekerPostingDto
+
+    // JobSeekerService returns { jobSeeker, status }
+    const jobSeeker = jobSeekerResp && (await (jobSeekerResp as any).jobSeeker);
+    // SkillsService returns { success, data }
+    const skill = (skillResp as any)?.success ? (skillResp as any).data : null;
+
+    if (jobSeeker && skill) {
+      const jobSeekerPosting = this.jobSeekerPostingRepo.create(
+        createJobSeekerPostingDto,
       );
+      const saved = await this.jobSeekerPostingRepo.save(jobSeekerPosting);
       return {
         message: "Job Seeker Posting created successfully",
-        data: jobSeekerPosting,
+        data: saved,
         success: true,
       };
     }
@@ -40,10 +47,10 @@ export class JobSeekerPostingService {
     };
   }
 
-  async findAll() {
+  findAll() {
     return {
       message: "Job Seeker Postings retrieved successfully",
-      data: await this.jobSeekerPostingRepo.find(),
+      data: this.jobSeekerPostingRepo.find(),
       success: true,
     };
   }
@@ -56,17 +63,35 @@ export class JobSeekerPostingService {
     };
   }
 
-  async update(id: number, updateJobSeekerPostingDto: UpdateJobSeekerPostingDto) {
-    const jobSeeker = await this.jobSeekerService.findOne(
-      Number(updateJobSeekerPostingDto.jobSeekerId)
-    );
-    const skillsId = await this.skillService.findOne(
-      Number(updateJobSeekerPostingDto.skillsId)
-    );
-    if (jobSeeker && +skillsId) {
+  async update(
+    id: number,
+    updateJobSeekerPostingDto: UpdateJobSeekerPostingDto,
+  ) {
+    let jobSeeker: any = null;
+    let skill: any = null;
+    if (updateJobSeekerPostingDto.job_seeker_id !== undefined) {
+      const jsResp = await this.jobSeekerService.findOne(
+        Number(updateJobSeekerPostingDto.job_seeker_id),
+      );
+      jobSeeker = jsResp && (await (jsResp as any).jobSeeker);
+    }
+    if (updateJobSeekerPostingDto.skills_id !== undefined) {
+      const skResp = await this.skillService.findOne(
+        Number(updateJobSeekerPostingDto.skills_id),
+      );
+      skill = (skResp as any)?.success ? (skResp as any).data : null;
+    }
+    if (
+      (updateJobSeekerPostingDto.job_seeker_id === undefined || jobSeeker) &&
+      (updateJobSeekerPostingDto.skills_id === undefined || skill)
+    ) {
+      await this.jobSeekerPostingRepo.update(id, updateJobSeekerPostingDto);
+      const updated = await this.jobSeekerPostingRepo.findOne({
+        where: { id },
+      });
       return {
         message: "Job Seeker Posting updated successfully",
-        data: this.jobSeekerPostingRepo.update(id, updateJobSeekerPostingDto),
+        data: updated,
         success: true,
       };
     }
@@ -77,20 +102,11 @@ export class JobSeekerPostingService {
     };
   }
 
-  async remove(id: number) {
-    const jobSeekerPosting = this.jobSeekerPostingRepo.findOneBy({ id });
-    if (!jobSeekerPosting) {
-      return {
-        message: "Job Seeker Posting not found",
-        data: null,
-        success: false,
-      }
-    }
+  remove(id: number) {
     return {
       message: "Job Seeker Posting deleted successfully",
-      data: await this.jobSeekerPostingRepo.delete(id),
+      data: this.jobSeekerPostingRepo.delete(id),
       success: true,
     };
-
   }
 }

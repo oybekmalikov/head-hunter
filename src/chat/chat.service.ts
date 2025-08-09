@@ -5,8 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Chat } from "./entities/chat.entity";
 import { Repository } from "typeorm";
 import { JobApplicationsService } from "../job-applications/job-applications.service";
-// import { SenderService } from "../sender/sender.service";
-// import { RecipientService } from "../recipient/recipient.service";
+import { UsersService } from "../users/users.service";
 
 @Injectable()
 export class ChatService {
@@ -14,8 +13,7 @@ export class ChatService {
     @InjectRepository(Chat)
     private chatRepo: Repository<Chat>,
     private jobApplicationsService: JobApplicationsService,
-    // private senderService: SenderService,
-    // private recipientService: RecipientService
+    private senderService: UsersService,
   ) {}
 
   async create(createChatDto: CreateChatDto) {

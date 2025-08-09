@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../../users/entities/user.entity";
 
-@Entity({ name: "job_seekers" })
+@Entity({name: "job_seekers"})
 export class JobSeeker {
 
     @ApiProperty({

@@ -14,8 +14,8 @@ export class EmployersController {
     summary: 'Create Employer',
     description: 'The employer is added to the system through data.',
   })
-  @ApiResponse({
-    status: 201,
+  @ApiResponse({ 
+    status: 201, 
     description: 'The employer has been successfully added to the system.',
     type: CreateEmployerDto
   })

@@ -1,18 +1,19 @@
 import { Module } from "@nestjs/common";
-import { ChatService } from "./chat.service";
-import { ChatController } from "./chat.controller";
-// import { SenderModule } from "src/sender/sender.module";
-// import { RecipientModule } from "src/recipient/recipient.module";
-import { JobApplicationsModule } from "src/job-applications/job-applications.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { JobApplicationsModule } from "../job-applications/job-applications.module";
+import { UsersModule } from "../users/users.module";
+import { ChatController } from "./chat.controller";
+import { ChatService } from "./chat.service";
 import { Chat } from "./entities/chat.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Chat]),
-    JobApplicationsModule
+    UsersModule,
+    JobApplicationsModule,
   ],
   controllers: [ChatController],
   providers: [ChatService],
+  exports:[ChatService]
 })
 export class ChatModule { }

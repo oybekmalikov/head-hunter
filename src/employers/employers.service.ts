@@ -65,7 +65,7 @@ export class EmployersService {
   }
 
   async findByRelation(userId: number, companyId: number) {
-    return this.employerRepo.findOne({ where: { userId, companyId } });
+    return this.employerRepo.findOne({where: { userId, companyId}});
   }
 
 }

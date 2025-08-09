@@ -1,6 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { JobApplication } from "../../job-applications/entities/job-application.entity";
-// import { Recipient } from "../../recipient/entities/recipient.entity";
+import { User } from "../../users/entities/user.entity";
 
 @Entity("chat")
 export class Chat {
@@ -24,12 +30,19 @@ export class Chat {
 
   @Column()
   sender_id: number;
-
-  // @Column()
-  // @ManyToOne(() => Recipient, (recipient) => recipient.chats)
-  // recipientId: number;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: "sender_id" })
+  sender: User;
 
   @Column()
+  recipient_id: number;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: "recipient_id" })
+  recipient: User;
+
+  @Column()
+  application_id: number;
   @ManyToOne(() => JobApplication, (jobApplication) => jobApplication.chats)
-  jobApplicationId: number;
+  @JoinColumn({ name: "application_id" })
+  jobApplication: JobApplication;
 }

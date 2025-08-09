@@ -22,8 +22,7 @@ export class UsersService {
         return {
           user: await this.userRepo.save({ ...createUserDto, password: hashedPassword }),
           message: "User created successfully!",
-          status: 201,
-          success: true
+          status: 201
         };
       }
       throw new ConflictException("There is a user with this phone.")
@@ -32,7 +31,7 @@ export class UsersService {
   }
 
   async findAll() {
-    const users = await this.userRepo.find({ relations: ["employers", "jobSeekers"] });
+    const users = await this.userRepo.find({relations: ["employers", "jobSeekers"]});
     if (!users) {
       return {
         message: "Users not found",
@@ -42,8 +41,7 @@ export class UsersService {
     }
     return {
       users: users,
-      status: 200,
-      success: true
+      status: 200
     };
   }
 
@@ -61,8 +59,7 @@ export class UsersService {
     }
     return {
       user: user,
-      status: 200,
-      success: true
+      status: 200
     }
   }
 
@@ -91,8 +88,7 @@ export class UsersService {
     await this.userRepo.delete(id);
     return {
       message: "User deleted successfully! ",
-      status: 200,
-      success: true
+      status: 200
     }
   }
 
