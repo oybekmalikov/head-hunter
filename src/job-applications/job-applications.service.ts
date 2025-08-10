@@ -23,7 +23,7 @@ export class JobApplicationsService {
   }
   async findAll() {
     const jobApplications = await this.jobApplicationsRepo.find({
-      relations: ["jobPosting", "jobSeeker", "chats"],
+      relations: ["jobPosting", "jobSeeker",],
     });
     if (!jobApplications || jobApplications.length === 0) {
       return {
@@ -41,7 +41,7 @@ export class JobApplicationsService {
   async findOne(id: number) {
     const jobApplication = await this.jobApplicationsRepo.findOne({
       where: { id },
-      relations: ["jobPosting", "jobSeeker", "chats"],
+      relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplication) {
       return {

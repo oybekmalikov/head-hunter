@@ -104,8 +104,8 @@ export class UserAuthService {
       throw new NotFoundException("User not found");
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens(user.user!);
-    await this.usersService.updateRefreshToken(user.user!.id, refreshToken);
+    const { accessToken, refreshToken } = await this.generateTokens(user.data!);
+    await this.usersService.updateRefreshToken(user.data!.id, refreshToken);
 
     res.cookie("refresh_token", refreshToken, {
       maxAge: Number(process.env.COOKIE_TIME),
@@ -113,7 +113,7 @@ export class UserAuthService {
     });
     return {
       message: "User refreshed successfully!",
-      userId: user.user!.id,
+      userId: user.data!.id,
       access_token: accessToken,
     };  
   }

@@ -1,15 +1,15 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { CreateJobCategoryDto } from "./dto/create-job_category.dto";
 import { UpdateJobCategoryDto } from "./dto/update-job_category.dto";
-import { InjectRepository } from "@nestjs/typeorm";
 import { JobCategory } from "./entities/job_category.entity";
-import { Repository } from "typeorm";
 
 @Injectable()
 export class JobCategoryService {
   constructor(
     @InjectRepository(JobCategory)
-    private readonly jobcategoryRepo: Repository<JobCategory>
+    private readonly jobcategoryRepo: Repository<JobCategory>,
   ) {}
 
   async create(createJobCategoryDto: CreateJobCategoryDto) {
@@ -49,19 +49,22 @@ export class JobCategoryService {
   }
 
   async update(id: number, updateJobCategoryDto: UpdateJobCategoryDto) {
-    const upd = await this.jobcategoryRepo.update(id, updateJobCategoryDto);
-    if (!upd.affected) {
+    const upd = await this.jobcategoryRepo.preload({
+      id,
+      ...updateJobCategoryDto,
+    });
+    if (!upd) {
       return { message: "Failed to update job category.", success: false };
     }
     return {
       message: "Job category successfully updated.",
-      data: await this.jobcategoryRepo.findOne({ where: { id } }),
+      data: await this.jobcategoryRepo.save(upd),
       success: true,
     };
   }
 
   async remove(id: number) {
-    const del = await this.jobcategoryRepo.delete(id);
+    const del = await this.jobcategoryRepo.delete({ id });
     if (del.affected === 0) {
       return {
         message: `Job category with ID ${id} not found. Deletion failed.`,

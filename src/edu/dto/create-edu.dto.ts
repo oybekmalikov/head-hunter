@@ -1,50 +1,55 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
   IsBoolean,
-  IsDate,
+  IsDateString,
+  IsNotEmpty,
   IsNumber,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+  IsOptional,
+  IsString,
+} from "class-validator";
 
 export class CreateEduDto {
-  @ApiProperty({ example: 'TATU', description: 'O‘quv yurti nomi' })
-  @IsString()
-  @IsNotEmpty()
-  inst_name: string;
+  @ApiProperty({ example: "TATU", description: "University name" })
+  @IsString({ message: "universityName must be a string" })
+  @IsNotEmpty({ message: "universityName is required" })
+  universityName: string;
 
-  @ApiProperty({ example: 'Axborot xavfsizligi', description: 'Fakultet nomi' })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ example: "Information safety", description: "Faculty name" })
+  @IsString({ message: "faculty must be a string" })
+  @IsNotEmpty({ message: "faculty is required" })
   faculty: string;
 
-  @ApiProperty({ example: 3, description: 'Daraja (1 - bakalavr, 2 - magistr, ...)' })
-  @IsNumber()
-  dagree: number;
+  @ApiProperty({ example: "Magistr", description: "Degree" })
+  @IsString({message: "dagree must be a string"})
+  dagree: string;
 
-  @ApiProperty({ example: '2020-09-01', description: 'Boshlanish sanasi', type: String, format: 'date' })
-  @Type(() => Date)
-  @IsDate()
-  start_date: Date;
+  @ApiProperty({ example: "2020-09-01", description: "Satrt date" })
+  @IsDateString({}, { message: "startDate must be a valid date" })
+  startDate: string;
 
-  @ApiProperty({ example: '2024-06-30', description: 'Tugash sanasi (ixtiyoriy)', type: String, format: 'date', required: false })
-  @Type(() => Date)
+  @ApiProperty({
+    example: "2024-06-30",
+    description: "End date",
+    required: false,
+  })
   @IsOptional()
-  @IsDate()
-  end_date?: Date;
+  @IsDateString({}, { message: "endDate must be a valid date" })
+  endDate?: string;
 
-  @ApiProperty({ example: false, description: 'Hozir ham o‘qiyapti yoki yo‘q' })
-  @IsBoolean()
-  is_current: boolean;
+  @ApiProperty({ example: false, description: "Job seeker still studying at university" })
+  @IsBoolean({message: "isCurrent must be a boolean"})
+  isCurrent: boolean;
 
-  @ApiProperty({ example: 'Diplom himoya qilindi', description: 'Qo‘shimcha izoh (ixtiyoriy)', required: false })
+  @ApiProperty({
+    example: "Additional note",
+    description: "Additional note",
+    required: false,
+  })
   @IsOptional()
-  @IsString()
+  @IsString({message: "description must be a string"  })
   description?: string;
 
-  @ApiProperty({ example: 5, description: 'Job seeker ID raqami (tashqi kalit)' })
-  @IsNumber()
-  job_seeker_id: number;
+  @ApiProperty({ example: 5, description: "Job seeker ID " })
+  @IsNumber({},{message: "jobSeekerId must be a number"})
+  jobSeekerId: number;
 }

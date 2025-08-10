@@ -1,31 +1,75 @@
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
-@Entity('edu')
+@Entity("educations")
 export class Edu {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty({
+    example: "National University of Uzbekistan",
+    description: "Universitys name",
+  })
   @Column()
-  inst_name: string;
+  universityName: string;
 
+  @ApiProperty({
+    example: "Faculty of Biology",
+    description: "Faculty name",
+  })
   @Column()
   faculty: string;
 
+  @ApiProperty({
+    example: "Bachalour degree",
+    description: "Diplom degree",
+  })
   @Column()
-  dagree: number;
+  dagree: string;
 
-  @Column({ type: 'date' })
-  start_date: Date;
+  @ApiProperty({
+    example: "2025-09-01",
+    description: "Start date",
+  })
+  @Column()
+  startDate: string;
 
-  @Column({ type: 'date', nullable: true })
-  end_date: Date;
+  @ApiProperty({
+    example: "2029-09-01",
+    description: "End date",
+  })
+  @Column({ nullable: true })
+  endDate: string;
 
+  @ApiProperty({
+    example: true,
+    description: "Job seeker still studying at there",
+  })
   @Column({ default: false })
-  is_current: boolean;
+  isCurrent: boolean;
 
-  @Column({ type: 'text', nullable: true })
+  @ApiProperty({
+    example: "Any description or note",
+    description: "Any description or note",
+  })
+  @Column({ nullable: true })
   description: string;
-
+  @ApiProperty({
+    example: 1,
+    description: "Job seeker's id",
+  })
   @Column()
-  job_seeker_id: number;
+  jobSeekerId: number;
+
+  // Relations
+  @ManyToOne(() => JobSeeker, (jobSeeker) => jobSeeker.education)
+  @JoinColumn({ name: "jobSeekerId" })
+  jobSeeker: JobSeeker;
 }

@@ -27,8 +27,7 @@ export class SkillsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new skill' })
-  @ApiCreatedResponse({ description: 'Skill successfully created.' })
-  @ApiBadRequestResponse({ description: 'Validation failed.' })
+  @ApiResponse({ status: 201, description: 'Created' })
   create(@Body() createSkillDto: CreateSkillDto) {
     return this.skillsService.create(createSkillDto);
   }

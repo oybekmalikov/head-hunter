@@ -18,19 +18,19 @@ export class CreateJobSeekerDto {
     @IsDateString({}, { message: 'Date must be a valid ISO date string' })
     dateOdBirth: string;
 
-    @ApiProperty({
-        example: "Ali",
-        description: "This is the job seeker's first name"
-    })
-    @IsNotEmpty({ message: 'First name is required' })
-    firstName: string;
+    // @ApiProperty({
+    //     example: "Ali",
+    //     description: "This is the job seeker's first name"
+    // })
+    // @IsNotEmpty({ message: 'First name is required' })
+    // firstName: string;
 
-    @ApiProperty({
-        example: "Aliyev",
-        description: "This is the job seeker's last name"
-    })
-    @IsNotEmpty({ message: 'Last name is required' })
-    lastName: string;
+    // @ApiProperty({
+    //     example: "Aliyev",
+    //     description: "This is the job seeker's last name"
+    // })
+    // @IsNotEmpty({ message: 'Last name is required' })
+    // lastName: string;
 
     @ApiProperty({
         example: "male",

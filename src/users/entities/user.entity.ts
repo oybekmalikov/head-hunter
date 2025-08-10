@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RolesType } from "../../app.constants";
+import { Chat } from "../../chat/entities/chat.entity";
 import { Employer } from "../../employers/entities/employer.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
-// import { Chat } from "../../chat/entities/chat.entity";
 
 @Entity({ name: "users" })
 export class User {
@@ -77,6 +77,7 @@ export class User {
   @Column({ default: "" })
   refreshToken: string;
 
+  // Relations
   @ApiProperty({
     type: () => [Employer],
     description: "This is the user's employers.",
@@ -87,7 +88,9 @@ export class User {
   @OneToMany(() => JobSeeker, (jobSeeker) => jobSeeker.user)
   jobSeekers: JobSeeker[];
 
-  // If needed later
-  // @OneToMany(() => Chat, (chat) => chat.recipient)
-  // chats: Chat[];
+  @OneToMany(() => Chat, (chat) => chat.sender)
+  sentChats: Chat[];
+
+  @OneToMany(() => Chat, (chat) => chat.recipient)
+  receivedChats: Chat[];
 }

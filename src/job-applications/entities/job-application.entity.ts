@@ -8,10 +8,10 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Chat } from "../../chat/entities/chat.entity";
-import { JobSeekerPosting } from "../../job-seeker-posting/entities/job-seeker-posting.entity";
+import { JobPosting } from "../../job-postings/entities/job-posting.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
-@Entity({ name: "job_applications" })
+@Entity({ name: "job-applications" })
 export class JobApplication {
   @ApiProperty({
     example: 1,
@@ -56,11 +56,12 @@ export class JobApplication {
   @Column({ enum: ["pending", "accepted", "rejected"], default: "pending" })
   status: string;
 
-  @ManyToOne(() => JobSeekerPosting)
+  // Relations
+  @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.applications)
   @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-  jobPosting: JobSeekerPosting;
+  jobPosting: JobPosting;
 
-  @ManyToOne(() => JobSeeker)
+  @ManyToOne(() => JobSeeker, (jobSeeker) => jobSeeker.applications)
   @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
   jobSeeker: JobSeeker;
 
