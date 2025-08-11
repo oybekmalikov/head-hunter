@@ -11,7 +11,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     const redisUrl = this.configService.get<string>('REDIS_URL');
     this.client = new Redis.Redis(process.env.REDIS_URL! );
-    console.log('Connected to remote Redis');
+    // console.log('Connected to remote Redis');
   }
 
   async onModuleDestroy() {

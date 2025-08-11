@@ -88,4 +88,18 @@ export class WorkExperienceController {
 	remove(@Param("id") id: string) {
 		return this.workExperienceService.remove(+id);
 	}
+
+	@ApiOperation({
+		summary: "Get work experiences by job seeker ID",
+		description:
+			"This endpoint retrieves all work experiences associated with a specific job seeker ID.",
+	})
+	@ApiResponse({
+		status: 200,
+		description: "Returns an array of work experiences for the specified job seeker.",
+	})
+	@Get("job-seeker/:jobSeekerId")
+	findByJobSeekerId(@Param("jobSeekerId") jobSeekerId: string) {
+		return this.workExperienceService.findByJobSeekerId(+jobSeekerId);
+	}
 }

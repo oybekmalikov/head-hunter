@@ -95,4 +95,22 @@ export class JobsNotificationsService {
 			success: true,
 		};
 	}
+
+	async findByJobSeekerId(jobSeekerId: number) {
+		const jobNotifications = await this.jobNotificationRepo.find({
+			where: { jobSeekerId: jobSeekerId  },
+			relations: ["jobPosting", "jobSeeker"],
+		});
+		if (!jobNotifications || jobNotifications.length === 0) {
+			return {
+				message: `No job notifications found for job seeker with id ${jobSeekerId}`,
+				success: false,
+			};
+		}
+		return {
+			message: `Job notifications for job seeker with id ${jobSeekerId} retrieved successfully`,
+			data: jobNotifications,
+			success: true,
+		};
+	}
 }
