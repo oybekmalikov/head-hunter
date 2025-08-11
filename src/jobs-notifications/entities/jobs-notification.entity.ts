@@ -6,10 +6,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { JobSeekerPosting } from "../../job-seeker-posting/entities/job-seeker-posting.entity";
+import { JobPosting } from "../../job-postings/entities/job-posting.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
-@Entity({ name: "jobs_notifications" })
+@Entity({ name: "jobs-notifications" })
 export class JobsNotification {
   @ApiProperty({
     example: 1,
@@ -47,16 +47,17 @@ export class JobsNotification {
 
   @ApiProperty({
     example: false,
-    description: "Notification is wiewed or not",
+    description: "Notification is viewed or not",
   })
   @Column({ default: false })
   isWiewed: boolean;
 
-  @ManyToOne(() => JobSeekerPosting)
+  // Relations
+  @ManyToOne(() => JobPosting, (jobPosting) => jobPosting.notifications)
   @JoinColumn({ name: "jobPostingId", referencedColumnName: "id" })
-  jobPosting: JobSeekerPosting;
+  jobPosting: JobPosting;
 
-  @ManyToOne(() => JobSeeker)
+  @ManyToOne(() => JobSeeker, (jobSeeker) => jobSeeker.notifications)
   @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
   jobSeeker: JobSeeker;
 }

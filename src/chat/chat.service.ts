@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { CreateChatDto } from "./dto/create-chat.dto";
-import { UpdateChatDto } from "./dto/update-chat.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Chat } from "./entities/chat.entity";
 import { Repository } from "typeorm";
 import { JobApplicationsService } from "../job-applications/job-applications.service";
 import { UsersService } from "../users/users.service";
+import { CreateChatDto } from "./dto/create-chat.dto";
+import { UpdateChatDto } from "./dto/update-chat.dto";
+import { Chat } from "./entities/chat.entity";
 
 @Injectable()
 export class ChatService {
@@ -18,40 +18,49 @@ export class ChatService {
 
   async create(createChatDto: CreateChatDto) {
     const jobApplication = await this.jobApplicationsService.findOne(
-      createChatDto.application_id
+      createChatDto.applicationId,
     );
-    // const sender = await this.senderService.findOne(createChatDto.sender_id);
-
+    const sender = await this.senderService.findOne(createChatDto.senderId);
     if (!jobApplication) {
       throw new NotFoundException("Job application not found");
     }
-    // if (!sender) {
-    //   throw new NotFoundException("Sender not found");
-    // }
-
+    if (!sender) {
+      throw new NotFoundException("Sender not found");
+    }
     const chat = this.chatRepo.create(createChatDto);
     const savedChat = await this.chatRepo.save(chat);
-
     return {
       message: "Chat created successfully",
       data: savedChat,
       success: true,
     };
   }
-
   async findAll() {
-    const chats = await this.chatRepo.find();
+    const chats = await this.chatRepo.find({
+      relations: ["jobApplication", "sender", "recipient"],
+    });
+    if (!chats || chats.length === 0) {
+      return {
+        message: "No chats found",
+        success: false,
+      };
+    }
     return {
       message: "Chats retrieved successfully",
       data: chats,
       success: true,
     };
   }
-
   async findOne(id: number) {
-    const chat = await this.chatRepo.findOne({ where: { id } });
+    const chat = await this.chatRepo.findOne({
+      where: { id },
+      relations: ["jobApplication", "sender", "recipient"],
+    });
     if (!chat) {
-      throw new NotFoundException("Chat not found");
+      return {
+        message: "Chat not found",
+        success: false,
+      };
     }
     return {
       message: "Chat retrieved successfully",
@@ -59,32 +68,31 @@ export class ChatService {
       success: true,
     };
   }
-
   async update(id: number, updateChatDto: UpdateChatDto) {
-    const chat = await this.chatRepo.findOne({ where: { id } });
-    if (!chat) {
-      throw new NotFoundException("Chat not found");
+    const updated = await this.chatRepo.preload({ id, ...updateChatDto });
+    if (!updated) {
+      return {
+        message: "Chat not found",
+        success: false,
+      };
     }
-
-    const updated = await this.chatRepo.save({ ...chat, ...updateChatDto });
-
     return {
       message: "Chat updated successfully",
-      data: updated,
+      data: await this.chatRepo.save(updated),
       success: true,
     };
   }
-
   async remove(id: number) {
-    const chat = await this.chatRepo.findOne({ where: { id } });
+    const chat = await this.chatRepo.delete({ id });
     if (!chat) {
-      throw new NotFoundException("Chat not found");
+      return {
+        message: "Chat not found",
+        succes: false,
+      };
     }
-
-    await this.chatRepo.remove(chat);
-
     return {
       message: "Chat removed successfully",
+      data: { affected: chat.affected },
       success: true,
     };
   }

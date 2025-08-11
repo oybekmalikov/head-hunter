@@ -16,9 +16,8 @@ export class EduService {
 
   async create(createEduDto: CreateEduDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      createEduDto.job_seeker_id,
+      createEduDto.jobSeekerId,
     );
-
     if (jobSeeker) {
       const edu = this.eduRepo.create(createEduDto);
       await this.eduRepo.save(edu);
@@ -28,16 +27,20 @@ export class EduService {
         success: true,
       };
     }
-
     return {
       message: "Job Seeker not found",
-      data: null,
       success: false,
     };
   }
 
   async findAll() {
-    const data = await this.eduRepo.find();
+    const data = await this.eduRepo.find({ relations: ["jobSeeker"] });
+    if (data.length === 0) {
+      return {
+        message: "No Edu records found",
+        success: false,
+      };
+    }
     return {
       message: "Edu records retrieved successfully",
       data,
@@ -46,7 +49,13 @@ export class EduService {
   }
 
   async findOne(id: number) {
-    const data = await this.eduRepo.findOne({ where: { id } });
+    const data = await this.eduRepo.findOne({ where: { id }, relations: ["jobSeeker"] });
+    if (!data) {
+      return {
+        message: "Edu record not found",
+        success: false,
+      };
+    }
     return {
       message: "Edu record retrieved successfully",
       data,
@@ -55,20 +64,32 @@ export class EduService {
   }
 
   async update(id: number, updateEduDto: UpdateEduDto) {
-    await this.eduRepo.update(id, updateEduDto);
-    const updated = await this.eduRepo.findOne({ where: { id } });
+   const updated = await this.eduRepo.preload({ id, ...updateEduDto })
+    if (!updated) {
+      return {
+        message: "Edu record not found for update",
+        success: false,
+      };
+    }
     return {
       message: "Edu updated successfully",
-      data: updated,
+      data: await this.eduRepo.save(updated),
       success: true,
     };
   }
 
   async remove(id: number) {
-    await this.eduRepo.delete(id);
+    const deleted=await this.eduRepo.delete({id});
+    if (deleted.affected === 0) {
+      return {
+        message: "Edu record not found for deletion",
+        success: false,
+      };
+    }
+    // await this.jobSeekerService.removeEduFromJobSeeker(id);
     return {
       message: "Edu deleted successfully",
-      data: null,
+      data: {affected: deleted.affected},
       success: true,
     };
   }

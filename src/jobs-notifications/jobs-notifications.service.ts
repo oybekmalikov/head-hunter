@@ -11,8 +11,8 @@ export class JobsNotificationsService {
 		@InjectRepository(JobsNotification)
 		private jobNotificationRepo: Repository<JobsNotification>
 	) {}
-	create(createJobsNotificationDto: CreateJobsNotificationDto) {
-		const newJobsNotification = this.jobNotificationRepo.save(
+	async create(createJobsNotificationDto: CreateJobsNotificationDto) {
+		const newJobsNotification = await this.jobNotificationRepo.save(
 			createJobsNotificationDto
 		);
 		return {

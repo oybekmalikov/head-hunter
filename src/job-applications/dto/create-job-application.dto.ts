@@ -38,7 +38,7 @@ export class CreateJobApplicationDto {
 			example: "pending",
 			description:"The status of the job application || pending, accepted, rejected",
 		})
-		@IsEnum(["pending", "accepted", "rejected"],{message:"status must be pending, accepted, rejected"})
+		@IsEnum(["pending", "accepted", "rejected", "interview"],{message:"status must be pending, accepted, rejected or interview"})
 		@IsNotEmpty({message:"status is required"})
 		status: string;
 }

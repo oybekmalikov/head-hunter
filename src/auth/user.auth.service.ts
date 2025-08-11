@@ -5,18 +5,20 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { SignInDto } from "./dto/sign-in.dto";
 import * as bcrypt from "bcrypt";
 import { Response } from "express";
-import { UsersService } from "../users/users.service";
-import { User } from "../users/entities/user.entity";
+import { MailService } from "../mail/mail.service";
 import { CreateUserDto } from "../users/dto/create-user.dto";
+import { User } from "../users/entities/user.entity";
+import { UsersService } from "../users/users.service";
+import { SignInDto } from "./dto/sign-in.dto";
 
 @Injectable()
 export class UserAuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly mailerService: MailService,
   ) {}
 
   async generateTokens(user: User) {
@@ -41,25 +43,25 @@ export class UserAuthService {
     };
   }
 
-  async signUp(createUserDto: CreateUserDto) {
-    const user = await this.usersService.findByEmail(createUserDto.email);
+  async signUp(signInDto: CreateUserDto) {
+    const user = await this.usersService.findByEmail(signInDto.email);
     if (user) {
       throw new BadRequestException("Email already exists!");
     }
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(signInDto);
   }
 
   async signIn(signInDto: SignInDto, res: Response) {
     const user = await this.usersService.findByEmail(signInDto.email);
     if (!user) {
-        throw new BadRequestException("Email or password incorrect!1");
+      throw new BadRequestException("Email or password incorrect!1");
     }
     const isValidPassword = await bcrypt.compare(
       signInDto.password,
-      user.password
+      user.password,
     );
     if (!isValidPassword) {
-        throw new BadRequestException("Email or password incorrect!2");
+      throw new BadRequestException("Email or password incorrect!2");
     }
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
@@ -104,8 +106,8 @@ export class UserAuthService {
       throw new NotFoundException("User not found");
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens(user.user!);
-    await this.usersService.updateRefreshToken(user.user!.id, refreshToken);
+    const { accessToken, refreshToken } = await this.generateTokens(user.data!);
+    await this.usersService.updateRefreshToken(user.data!.id, refreshToken);
 
     res.cookie("refresh_token", refreshToken, {
       maxAge: Number(process.env.COOKIE_TIME),
@@ -113,9 +115,31 @@ export class UserAuthService {
     });
     return {
       message: "User refreshed successfully!",
-      userId: user.user!.id,
-      access_token: accessToken,
+      userId: user.data!.id,
+      accessToken,
+    };
+  }
+
+  async verifyOtp(
+    email: string,
+    userOtp: string,
+    type: "signup" | "forget-password",
+  ) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const isOtpValid = await this.mailerService.verifyOtp(email, userOtp, type);
+    if (!isOtpValid) {
+      throw new BadRequestException("Invalid OTP");
+    }
+    if (type === "signup") {
+      await this.usersService.activate(user.id);
+    }
+    return {
+      message: "OTP verified successfully!",
+      data: { email: user.email, type: type, succesfully: true },
       success: true,
-    };  
+    };
   }
 }

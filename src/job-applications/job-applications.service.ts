@@ -23,7 +23,7 @@ export class JobApplicationsService {
   }
   async findAll() {
     const jobApplications = await this.jobApplicationsRepo.find({
-      relations: ["jobPosting", "jobSeeker", "chats"],
+      relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplications || jobApplications.length === 0) {
       return {
@@ -41,7 +41,7 @@ export class JobApplicationsService {
   async findOne(id: number) {
     const jobApplication = await this.jobApplicationsRepo.findOne({
       where: { id },
-      relations: ["jobPosting", "jobSeeker", "chats"],
+      relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplication) {
       return {
@@ -85,6 +85,126 @@ export class JobApplicationsService {
     return {
       message: "Job application deleted successfully",
       data: { affacted: result.affected },
+      success: true,
+    };
+  }
+
+  async findAllAplicationsByJobSeekerId(jobSeekerId: number) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobSeekerId: jobSeekerId },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: "No job applications found for this job seeker",
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+
+  async findAllApplicationsByJobSeekerIdAndStatus(
+    jobSeekerId: number,
+    status: string,
+  ) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobSeekerId: jobSeekerId, status: status },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: `No job applications found for this job seeker with status ${status}`,
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+
+  async findAllApplicationsByJobPostingId(jobPostingId: number) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobPostingId: jobPostingId },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: "No job applications found for this job posting",
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+
+  async findAllApplicationsByJobPostingIdAndStatus(
+    jobPostingId: number,
+    status: string,
+  ) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobPostingId: jobPostingId, status: status },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: `No job applications found for this job posting with status ${status}`,
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+
+  async findAllApplicationsByJobPostingIdAndJobSeekerId(
+    jobPostingId: number,
+    jobSeekerId: number,
+  ) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobPostingId: jobPostingId, jobSeekerId: jobSeekerId },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: "No job applications found for this job posting and job seeker",
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+
+  async findAllApllicationsByJobPostingsCategoryId(
+    categoryId: number,
+    jobSeekerId: number,
+  ) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobPosting: { categoryId: categoryId }, jobSeekerId: jobSeekerId },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: `No job applications found for this category with id ${categoryId}`,
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
       success: true,
     };
   }

@@ -1,5 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Company } from "../../company/entities/company.entity";
+import { JobPosting } from "../../job-postings/entities/job-posting.entity";
 import { User } from "../../users/entities/user.entity";
 
 @Entity({ name: "employers" })
@@ -39,8 +47,13 @@ export class Employer {
   @Column()
   department: string;
 
+  // Relations
   @ManyToOne(() => User, (user) => user.employers)
   user: User;
 
-  // Company relation can be reintroduced when company module is aligned
+  @ManyToOne(() => Company, (company) => company.employers)
+  company: Company;
+
+  @OneToMany(() => JobPosting, (jobPosting) => jobPosting.employer)
+  jobPostings: JobPosting[];
 }

@@ -13,7 +13,7 @@ export class SkillsCategoryService {
   ) {}
 
   async create(createSkillCategoryDto: CreateSkillsCategoryDto) {
-    const crt = this.skillcategoryRepo.save(createSkillCategoryDto);
+    const crt = await this.skillcategoryRepo.save(createSkillCategoryDto);
     return {
       message: "Skill category successfully created",
       data: crt,

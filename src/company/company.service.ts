@@ -1,15 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Company } from './entities/company.entity';
-import { CreateCompanyDto } from './dto/create-company.dto';
-import { UpdateCompanyDto } from './dto/update-company.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CreateCompanyDto } from "./dto/create-company.dto";
+import { UpdateCompanyDto } from "./dto/update-company.dto";
+import { Company } from "./entities/company.entity";
 
 @Injectable()
 export class CompanyService {
   constructor(
     @InjectRepository(Company)
-    private companyRepo: Repository<Company>
+    private companyRepo: Repository<Company>,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
@@ -21,18 +21,28 @@ export class CompanyService {
       success: true,
     };
   }
-
   async findAll() {
     const data = await this.companyRepo.find();
+    if (!data || data.length == 0) {
+      return {
+        message: "Companies not found.",
+        success: false,
+      };
+    }
     return {
       message: "Companies retrieved successfully",
       data,
       success: true,
     };
   }
-
   async findOne(id: number) {
     const data = await this.companyRepo.findOne({ where: { id } });
+    if (!data) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
     return {
       message: "Company retrieved successfully",
       data,
@@ -41,8 +51,13 @@ export class CompanyService {
   }
 
   async update(id: number, updateCompanyDto: UpdateCompanyDto) {
-    await this.companyRepo.update(id, updateCompanyDto);
-    const updated = await this.companyRepo.findOne({ where: { id } });
+    const updated = await this.companyRepo.preload({ id, ...updateCompanyDto });
+    if (!updated) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
     return {
       message: "Company updated successfully",
       data: updated,
@@ -51,9 +66,16 @@ export class CompanyService {
   }
 
   async remove(id: number) {
-    await this.companyRepo.delete(id);
+    const deleted = await this.companyRepo.delete({ id });
+    if (!deleted.affected) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
     return {
       message: "Company removed successfully",
+      data: { affacted: deleted.affected },
       success: true,
     };
   }

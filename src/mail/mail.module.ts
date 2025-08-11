@@ -1,33 +1,31 @@
-import { Module } from "@nestjs/common";
-import { MailService } from "./mail.service";
-import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
-import { ConfigService } from "@nestjs/config";
-import { join } from "path";
+import { Module, forwardRef } from '@nestjs/common';
+import { MailService } from './mail.service';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import { RedisModule } from '../redis/redis.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
+    RedisModule,
+    forwardRef(() => UsersModule), // Tsiklik bog'liqlikni oldini olish
     MailerModule.forRootAsync({
-      useFactory: async (config: ConfigService) => ({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
         transport: {
-          host: config.get<string>("SMTP_HOST"),
-          secure: false,
+          host: process.env.SMTP_HOST,
+          port: process.env.SMTP_PORT,
           auth: {
-            user: config.get<string>("SMTP_USER"),
-            pass: config.get<string>("SMTP_PASSWORD"),
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASSWORD,
           },
-        },
-        defaults: {
-          from: `CV_MAKER ${config.get<string>("SMTP_HOST")}`,
         },
         template: {
-          dir: join(process.cwd(), "src/mail/templates"),
+          dir: join(__dirname, 'templates'),
           adapter: new HandlebarsAdapter(),
-          options: {
-            strict: true,
-          },
         },
-        
       }),
       inject: [ConfigService],
     }),

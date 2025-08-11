@@ -12,7 +12,7 @@ export class WorkExperienceService {
 		private workExperienceRepo: Repository<WorkExperience>
 	) { }
 	async create(createWorkExperienceDto: CreateWorkExperienceDto) {
-		const workExperience = this.workExperienceRepo.save(
+		const workExperience =await this.workExperienceRepo.save(
 			createWorkExperienceDto
 		);
 		return {

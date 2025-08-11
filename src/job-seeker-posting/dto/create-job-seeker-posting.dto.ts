@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateJobSeekerPostingDto {
@@ -7,22 +7,19 @@ export class CreateJobSeekerPostingDto {
   city: string;
 
   @ApiProperty({ example: '1000$', description: 'Talab qilinayotgan maosh' })
-  @IsString()
+  @IsString({ message: 'Salary must be a string' })
   salary: string;
 
   @ApiProperty({ example: '2 oy', description: 'Ariza topshirish uchun mavjud vaqt' })
-  @IsString()
+  @IsString({ message: 'Time for apply must be a string' })
   timeForApply: string;
 
   @ApiProperty({ example: 'React frontend lavozimlariga mos ish izlayapman', description: 'Ish qidiruvchining maqsadi' })
-  @IsString()
+  @IsString({ message: 'Target must be a string' })
   target: string;
-
-  @ApiProperty({ example: '123', description: 'Skills jadvalidan skill ID (foreign key)' })
-  @IsString()
-  skillsId: string;
-
+  
   @ApiProperty({ example: '456', description: 'Job seeker ID (foreign key)' })
-  @IsString()
-  jobSeekerId: string;
+  @IsNotEmpty({ message: 'Job seeker ID is required' })
+  @IsNumber({},{ message: 'Job seeker ID must be a number' })
+  jobSeekerId: number;
 }

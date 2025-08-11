@@ -10,41 +10,37 @@ export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Yangi kompaniya yaratish' })
-  @ApiResponse({ status: 201, description: 'Kompaniya muvaffaqiyatli yaratildi' })
+  @ApiOperation({ summary: 'Create new company', description: 'This endpoint allows you to create a new company.' })
+  @ApiResponse({ status: 201, description: 'Create new company' })
   @ApiBody({ type: CreateCompanyDto })
   create(@Body() createCompanyDto: CreateCompanyDto) {
     return this.companyService.create(createCompanyDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Barcha kompaniyalarni olish' })
-  @ApiResponse({ status: 200, description: 'Kompaniyalar ro‘yxati' })
+  @ApiOperation({ summary: 'Get all compamnies', description: 'This endpoint retrieves all companies.' })
+  @ApiResponse({ status: 200, description: 'List of compnaies' })
   findAll() {
     return this.companyService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Kompaniyani ID orqali olish' })
-  @ApiParam({ name: 'id', type: Number, description: 'Kompaniya ID raqami' })
-  @ApiResponse({ status: 200, description: 'Topilgan kompaniya' })
+  @ApiOperation({ summary: 'Get Companies by id',description: 'This endpoint retrieves a company by its ID.' })
+  @ApiResponse({ status: 200, description: 'Get companies by id' })
   findOne(@Param('id') id: string) {
     return this.companyService.findOne(+id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Kompaniyani tahrirlash' })
-  @ApiParam({ name: 'id', type: Number, description: 'Tahrir qilinayotgan kompaniya ID raqami' })
-  @ApiBody({ type: UpdateCompanyDto })
-  @ApiResponse({ status: 200, description: 'Kompaniya yangilandi' })
+  @ApiOperation({ summary: 'Edit Company',description: 'This endpoint allows you to update a company by its ID.' })
+  @ApiResponse({ status: 200, description: 'Company updated' })
   update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
     return this.companyService.update(+id, updateCompanyDto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Kompaniyani o‘chirish' })
-  @ApiParam({ name: 'id', type: Number, description: 'O‘chiriladigan kompaniya ID raqami' })
-  @ApiResponse({ status: 200, description: 'Kompaniya muvaffaqiyatli o‘chirildi' })
+  @ApiOperation({ summary: 'Delete company',description: 'This endpoint allows you to delete a company by its ID.' })
+  @ApiResponse({ status: 200, description: 'Company deleted' })
   remove(@Param('id') id: string) {
     return this.companyService.remove(+id);
   }
