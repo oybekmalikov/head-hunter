@@ -18,10 +18,10 @@ export class JobSeekerPostingService {
 
   async create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
     const jobSeekerResp = await this.jobSeekerService.findOne(
-      Number(createJobSeekerPostingDto.job_seeker_id),
+      Number(createJobSeekerPostingDto.jobSeekerId),
     );
     const skillResp = await this.skillService.findOne(
-      Number(createJobSeekerPostingDto.skills_id),
+      Number(createJobSeekerPostingDto.skillsId),
     );
 
     // JobSeekerService returns { jobSeeker, status }
@@ -69,21 +69,21 @@ export class JobSeekerPostingService {
   ) {
     let jobSeeker: any = null;
     let skill: any = null;
-    if (updateJobSeekerPostingDto.job_seeker_id !== undefined) {
+    if (updateJobSeekerPostingDto.jobSeekerId !== undefined) {
       const jsResp = await this.jobSeekerService.findOne(
-        Number(updateJobSeekerPostingDto.job_seeker_id),
+        Number(updateJobSeekerPostingDto.jobSeekerId),
       );
       jobSeeker = jsResp && (await (jsResp as any).jobSeeker);
     }
-    if (updateJobSeekerPostingDto.skills_id !== undefined) {
+    if (updateJobSeekerPostingDto.skillsId !== undefined) {
       const skResp = await this.skillService.findOne(
-        Number(updateJobSeekerPostingDto.skills_id),
+        Number(updateJobSeekerPostingDto.skillsId),
       );
       skill = (skResp as any)?.success ? (skResp as any).data : null;
     }
     if (
-      (updateJobSeekerPostingDto.job_seeker_id === undefined || jobSeeker) &&
-      (updateJobSeekerPostingDto.skills_id === undefined || skill)
+      (updateJobSeekerPostingDto.jobSeekerId === undefined || jobSeeker) &&
+      (updateJobSeekerPostingDto.skillsId === undefined || skill)
     ) {
       await this.jobSeekerPostingRepo.update(id, updateJobSeekerPostingDto);
       const updated = await this.jobSeekerPostingRepo.findOne({

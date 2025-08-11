@@ -9,8 +9,8 @@ import { JobSeekerSkillsService } from "./job-seeker-skills.service";
 @Module({
   imports: [
     TypeOrmModule.forFeature([JobSeekerSkill]),
-    SkillsModule,
     JobSeekersModule,
+    SkillsModule,
   ],
   controllers: [JobSeekerSkillsController],
   providers: [JobSeekerSkillsService],

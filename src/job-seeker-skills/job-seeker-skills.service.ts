@@ -18,10 +18,10 @@ export class JobSeekerSkillsService {
 
   async create(createJobSeekerSkillDto: CreateJobSeekerSkillDto) {
     const jobSeeker = await this.jobSeekerService.findOne(
-      createJobSeekerSkillDto.job_seeker_id,
+      createJobSeekerSkillDto.jobSeekerId,
     );
     const skill = await this.skillService.findOne(
-      createJobSeekerSkillDto.skill_id,
+      createJobSeekerSkillDto.skillId,
     );
 
     if (jobSeeker && skill) {
@@ -63,12 +63,12 @@ export class JobSeekerSkillsService {
 
   async update(id: number, updateDto: UpdateJobSeekerSkillDto) {
     const jobSeeker =
-      updateDto.job_seeker_id !== undefined
-        ? await this.jobSeekerService.findOne(updateDto.job_seeker_id as number)
+      updateDto.jobSeekerId !== undefined
+        ? await this.jobSeekerService.findOne(updateDto.jobSeekerId as number)
         : null;
     const skill =
-      updateDto.skill_id !== undefined
-        ? await this.skillService.findOne(updateDto.skill_id as number)
+      updateDto.jobSeekerId !== undefined
+        ? await this.skillService.findOne(updateDto.skillId as number)
         : null;
 
     if (jobSeeker && skill) {

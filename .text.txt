@@ -1,0 +1,301 @@
+# NestJS + Redis OTP Implementation
+
+## 1. Redis Module Setup
+
+```typescript
+// redis.module.ts
+import { Module } from '@nestjs/common';
+import { RedisModule as NestRedisModule } from '@nestjs-modules/ioredis';
+
+@Module({
+  imports: [
+    NestRedisModule.forRoot({
+      type: 'single',
+      url: 'redis://localhost:6379', // yoki .env dan
+    }),
+  ],
+  exports: [NestRedisModule],
+})
+export class RedisModule {}
+```
+
+## 2. OTP Service
+
+```typescript
+// otp.service.ts
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import Redis from 'ioredis';
+import * as crypto from 'crypto';
+
+@Injectable()
+export class OtpService {
+  constructor(@InjectRedis() private readonly redis: Redis) {}
+
+  // OTP generate qilish
+  async generateOTP(
+    userId: number, 
+    purpose: 'email_verification' | 'password_reset' = 'email_verification'
+  ): Promise<string> {
+    // 6 xonali random kod
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Redis key pattern
+    const key = `otp:${purpose}:${userId}`;
+    
+    // Hash qilib saqlash (xavfsizlik uchun)
+    const hashedOtp = crypto.createHash('sha256').update(otp).digest('hex');
+    
+    // Redisga saqlash - 10 daqiqa TTL
+    await this.redis.setex(key, 600, hashedOtp); // 600 sekund = 10 daqiqa
+    
+    // Rate limiting uchun attempt counter
+    const attemptKey = `otp_attempts:${userId}`;
+    await this.redis.incr(attemptKey);
+    await this.redis.expire(attemptKey, 3600); // 1 soat
+    
+    return otp; // Faqat email yuborish uchun plain text qaytarish
+  }
+
+  // OTP verify qilish
+  async verifyOTP(
+    userId: number, 
+    code: string, 
+    purpose: 'email_verification' | 'password_reset' = 'email_verification'
+  ): Promise<boolean> {
+    const key = `otp:${purpose}:${userId}`;
+    
+    // Rate limiting check
+    const attemptKey = `otp_attempts:${userId}`;
+    const attempts = await this.redis.get(attemptKey);
+    
+    if (attempts && parseInt(attempts) > 5) {
+      throw new BadRequestException('Juda ko\'p urinish. 1 soat kutib turing.');
+    }
+    
+    // Redisdan olish
+    const storedHashedOtp = await this.redis.get(key);
+    
+    if (!storedHashedOtp) {
+      throw new BadRequestException('OTP kodi topilmadi yoki muddati tugagan');
+    }
+    
+    // Kiritilgan kodnikham hash qilish
+    const hashedInputOtp = crypto.createHash('sha256').update(code).digest('hex');
+    
+    // Solishtirish
+    if (hashedInputOtp !== storedHashedOtp) {
+      // Noto'g'ri urinish sonini oshirish
+      await this.redis.incr(attemptKey);
+      return false;
+    }
+    
+    // To'g'ri bo'lsa - o'chirish
+    await this.redis.del(key);
+    await this.redis.del(attemptKey);
+    
+    return true;
+  }
+
+  // OTP holatini tekshirish
+  async checkOtpExists(
+    userId: number, 
+    purpose: 'email_verification' | 'password_reset' = 'email_verification'
+  ): Promise<boolean> {
+    const key = `otp:${purpose}:${userId}`;
+    const exists = await this.redis.exists(key);
+    return exists === 1;
+  }
+
+  // OTP ni bekor qilish
+  async cancelOtp(
+    userId: number, 
+    purpose: 'email_verification' | 'password_reset' = 'email_verification'
+  ): Promise<void> {
+    const key = `otp:${purpose}:${userId}`;
+    await this.redis.del(key);
+  }
+}
+```
+
+## 3. Auth Controller
+
+```typescript
+// auth.controller.ts
+import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
+import { OtpService } from './otp.service';
+import { EmailService } from './email.service'; // Email yuborish uchun
+import { UserService } from './user.service';
+
+@Controller('auth')
+export class AuthController {
+  constructor(
+    private readonly otpService: OtpService,
+    private readonly emailService: EmailService,
+    private readonly userService: UserService,
+  ) {}
+
+  @Post('send-verification-otp')
+  async sendVerificationOtp(@Body('email') email: string) {
+    const user = await this.userService.findByEmail(email);
+    
+    if (!user) {
+      throw new BadRequestException('Foydalanuvchi topilmadi');
+    }
+
+    if (user.email_verified) {
+      throw new BadRequestException('Email allaqachon tasdiqlangan');
+    }
+
+    // Oldingi OTP borligini tekshirish
+    const otpExists = await this.otpService.checkOtpExists(user.id, 'email_verification');
+    if (otpExists) {
+      throw new BadRequestException('OTP allaqachon yuborilgan. 10 daqiqa kutib turing.');
+    }
+
+    // Yangi OTP generate qilish
+    const otp = await this.otpService.generateOTP(user.id, 'email_verification');
+    
+    // Email yuborish
+    await this.emailService.sendVerificationEmail(user.email, otp);
+    
+    return {
+      message: 'Tasdiqlash kodi emailingizga yuborildi',
+      expires_in: '10 daqiqa'
+    };
+  }
+
+  @Post('verify-email')
+  async verifyEmail(
+    @Body('email') email: string,
+    @Body('otp') otp: string
+  ) {
+    const user = await this.userService.findByEmail(email);
+    
+    if (!user) {
+      throw new BadRequestException('Foydalanuvchi topilmadi');
+    }
+
+    // OTP verify qilish
+    const isValid = await this.otpService.verifyOTP(user.id, otp, 'email_verification');
+    
+    if (!isValid) {
+      throw new BadRequestException('Noto\'g\'ri yoki muddati tugagan kod');
+    }
+
+    // Userni verified qilish
+    await this.userService.markEmailAsVerified(user.id);
+    
+    return {
+      message: 'Email muvaffaqiyatli tasdiqlandi',
+      user: { id: user.id, email: user.email, email_verified: true }
+    };
+  }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    const user = await this.userService.findByEmail(email);
+    
+    if (!user) {
+      // Security: Har doim success qaytarish
+      return { message: 'Agar email mavjud bo\'lsa, parol tiklash kodi yuborildi' };
+    }
+
+    const otp = await this.otpService.generateOTP(user.id, 'password_reset');
+    await this.emailService.sendPasswordResetEmail(user.email, otp);
+    
+    return { message: 'Parol tiklash kodi emailingizga yuborildi' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('email') email: string,
+    @Body('otp') otp: string,
+    @Body('new_password') newPassword: string
+  ) {
+    const user = await this.userService.findByEmail(email);
+    
+    if (!user) {
+      throw new BadRequestException('Foydalanuvchi topilmadi');
+    }
+
+    const isValid = await this.otpService.verifyOTP(user.id, otp, 'password_reset');
+    
+    if (!isValid) {
+      throw new BadRequestException('Noto\'g\'ri yoki muddati tugagan kod');
+    }
+
+    await this.userService.updatePassword(user.id, newPassword);
+    
+    return { message: 'Parol muvaffaqiyatli o\'zgartirildi' };
+  }
+}
+```
+
+## 4. Environment Variables
+
+```env
+# .env
+REDIS_URL=redis://localhost:6379
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=your_password_if_needed
+```
+
+## 5. App Module
+
+```typescript
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { RedisModule } from './redis/redis.module';
+import { AuthModule } from './auth/auth.module';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      autoLoadEntities: true,
+      synchronize: process.env.NODE_ENV === 'development',
+    }),
+    RedisModule,
+    AuthModule,
+  ],
+})
+export class AppModule {}
+```
+
+## 6. Package.json dependencies
+
+```json
+{
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/typeorm": "^10.0.0",
+    "@nestjs-modules/ioredis": "^2.0.0",
+    "ioredis": "^5.3.2",
+    "typeorm": "^0.3.17",
+    "pg": "^8.11.0"
+  }
+}
+```
+
+## Redis ning afzalliklari OTP uchun:
+
+1. **TTL (Time To Live)** - Avtomatik o'chirish
+2. **Tezkor** - In-memory storage
+3. **Rate limiting** - Oson implement qilish
+4. **Clustering** - Horizontal scaling
+5. **Memory efficient** - PostgreSQL dan kam joy egallaydi
+
+**Key patterns:**
+- `otp:email_verification:user_id`
+- `otp:password_reset:user_id`
+- `otp_attempts:user_id`
+
+Bu yondashuv production environmentda ham juda yaxshi ishlaydi!

@@ -16,7 +16,6 @@ export class CreateUserDto {
     })
     @IsNotEmpty({ message: "Last name is required!" })
     lastName: string;
-
     @ApiProperty({
         example: "example@gmail.com",
         description: "This user's email address"
@@ -42,6 +41,13 @@ export class CreateUserDto {
         example: "example1234!",
         description: "This user's confirm password"
     })
+    @IsStrongPassword({
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1
+    })
     confirmPassword?: string;
 
     @ApiProperty({
@@ -50,7 +56,7 @@ export class CreateUserDto {
     })
     @IsNotEmpty({ message: "Phone number is required!" })
     @IsPhoneNumber("UZ", { message: "Phone number not valid!" })
-    phone: string;
+    phone?: string;
 
     @ApiProperty({
         example: "https://example.com/avatar.jpg Optional property",

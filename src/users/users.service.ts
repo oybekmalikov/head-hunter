@@ -15,7 +15,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const userFoundByEmail = await this.findByEmail(createUserDto.email)
     if (!userFoundByEmail) {
-      const userFoundByPhone = await this.findByPhone(createUserDto.phone)
+      const userFoundByPhone = await this.findByPhone(createUserDto.phone!)
       if (!userFoundByPhone) {
         const { password } = createUserDto;
         const hashedPassword = await bcrypt.hash(password, 7);

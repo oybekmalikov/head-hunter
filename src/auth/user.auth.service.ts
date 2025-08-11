@@ -41,13 +41,13 @@ export class UserAuthService {
     };
   }
 
-  // async signUp(signInDto: SignInDto) {
-  //   const user = await this.usersService.findByEmail(signInDto.email);
-  //   if (user) {
-  //     throw new BadRequestException("Email already exists!");
-  //   }
-  //   return this.usersService.create(signInDto);
-  // }
+  async signUp(createUserDto: CreateUserDto) {
+    const user = await this.usersService.findByEmail(createUserDto.email);
+    if (user) {
+      throw new BadRequestException("Email already exists!");
+    }
+    return this.usersService.create(createUserDto);
+  }
 
   async signIn(signInDto: SignInDto, res: Response) {
     const user = await this.usersService.findByEmail(signInDto.email);
@@ -115,6 +115,7 @@ export class UserAuthService {
       message: "User refreshed successfully!",
       userId: user.user!.id,
       access_token: accessToken,
+      success: true,
     };  
   }
 }
