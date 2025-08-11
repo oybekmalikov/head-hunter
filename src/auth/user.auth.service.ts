@@ -131,7 +131,11 @@ export class UserAuthService {
     }
     const isOtpValid = await this.mailerService.verifyOtp(email, userOtp, type);
     if (!isOtpValid) {
-      throw new BadRequestException("Invalid OTP");
+      return {
+        message: "OTP is invalid or expired!",
+        data: { email: user.email, type: type, succesfully: false },
+        success: false,
+      };
     }
     if (type === "signup") {
       await this.usersService.activate(user.id);

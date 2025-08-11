@@ -19,7 +19,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async set(key: string, value: string, ttlInSeconds: number): Promise<void> {
-    await this.client.set(key, value, 'EX', ttlInSeconds);  // TTL bilan saqlash (masalan, 300s = 5 daqiqa)
+    await this.client.set(key, value, 'EX', ttlInSeconds); 
   }
 
   async get(key: string): Promise<string | null> {
