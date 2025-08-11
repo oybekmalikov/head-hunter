@@ -18,6 +18,7 @@ import { SkillsCategoryModule } from "./skills-category/skills-category.module";
 import { SkillsModule } from "./skills/skills.module";
 import { UsersModule } from "./users/users.module";
 import { WorkExperienceModule } from "./work-experience/work-experience.module";
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { WorkExperienceModule } from "./work-experience/work-experience.module";
     UsersModule,
     EmployersModule,
     JobSeekersModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],

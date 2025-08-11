@@ -12,6 +12,7 @@ import { CookieGetter } from "../common/decorators/decorators/cookie-getter.deco
 import { Response } from "express";
 import { SignInDto } from "./dto/sign-in.dto";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { CreateUserDto } from "../users/dto/create-user.dto"
 
 @Controller("auth")
 export class AuthController {
@@ -48,6 +49,13 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response
   ) {
     return this.authService.signIn(signInDto, res);
+  }
+
+    @Post("user/sign-up")
+  async signUpUser(
+    @Body() signInDto: CreateUserDto,
+  ) {
+    return this.authService.signUp(signInDto);
   }
 
   @ApiOperation({
@@ -104,5 +112,23 @@ export class AuthController {
   ) {
     return this.authService.refreshTokenUser(id, refreshToken, res);
   }
+
+  @ApiOperation({
+    summary: "User verify OTP",
+    description: "The user verifies their OTP through this endpoint."
+  })
+  @ApiResponse({
+    status: 200,
+    description: "User verified successfully!"
+  })
+  @Post("user/verify-otp")
+  async verifyOtp(
+    @Body("email") email: string,
+    @Body("userOtp") userOtp: string,
+    @Body("type") type: "signup" | "forget-password",
+  ) {
+    return this.authService.verifyOtp(email, userOtp, type);
+  }
+  
   // ______________________________ADMINS______________________________
 }

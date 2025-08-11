@@ -53,7 +53,7 @@ export class JobApplication {
     description:
       "The status of the job application || pending, accepted, rejected",
   })
-  @Column({ enum: ["pending", "accepted", "rejected"], default: "pending" })
+  @Column({ enum: ["pending", "accepted", "rejected", "interview"], default: "pending" })
   status: string;
 
   // Relations
