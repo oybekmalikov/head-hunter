@@ -11,13 +11,13 @@ import {
 } from "class-validator";
 
 export class CreateJobPostingDto {
-//   @ApiProperty({
-//     example: 1,
-//     description: "ID of the employer who is posting the job",
-//   })
-//   @IsNotEmpty({ message: "employerId is required" })
-//   @IsNumber({}, { message: "employerId must be a number" })
-//   employerId: number;
+  @ApiProperty({
+    example: 1,
+    description: "ID of the employer who is posting the job",
+  })
+  @IsNotEmpty({ message: "employerId is required" })
+  @IsNumber({}, { message: "employerId must be a number" })
+  employerId: number;
 
   @ApiProperty({
     example: 2,
@@ -27,13 +27,13 @@ export class CreateJobPostingDto {
   @IsNumber({}, { message: "categoryId must be a number" })
   categoryId: number;
 
-//   @ApiProperty({
-//     example: 3,
-//     description: "Company ID related to the job",
-//   })
-//   @IsNotEmpty({ message: "cmpId is required" })
-//   @IsNumber({}, { message: "cmpId must be a number" })
-//   cmpId: number;
+  @ApiProperty({
+    example: 3,
+    description: "Company ID related to the job",
+  })
+  @IsNotEmpty({ message: "cmpId is required" })
+  @IsNumber({}, { message: "cmpId must be a number" })
+  companyId: number;
 
   @ApiProperty({
     example: "Senior Full Stack Developer",
@@ -65,7 +65,7 @@ export class CreateJobPostingDto {
   })
   @IsNotEmpty({ message: "required_skills is required" })
   @IsString({ message: "required_skills must be a string" })
-  required_skills: string;
+  requiredSkills: string;
 
   @ApiProperty({
     example: "full-time",
@@ -76,7 +76,7 @@ export class CreateJobPostingDto {
   @IsIn(["full-time", "part-time", "contract", "internship"], {
     message: "job_type must be one of: full-time, part-time, contract, internship",
   })
-  job_type: string;
+  jobType: string;
 
   @ApiProperty({
     example: "remote",
@@ -87,7 +87,7 @@ export class CreateJobPostingDto {
   @IsIn(["remote", "onsite", "hybrid"], {
     message: "work_loc must be one of: remote, onsite, hybrid",
   })
-  work_loc: string;
+  workLocation: string;
 
   @ApiProperty({
     example: "Tashkent",
@@ -104,7 +104,7 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "salary_min is required" })
   @IsNumber({}, { message: "salary_min must be a number" })
   @Min(0, { message: "salary_min cannot be negative" })
-  salary_min: number;
+  salaryMin: number;
 
   @ApiProperty({
     example: 5000,
@@ -113,7 +113,7 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "salary_max is required" })
   @IsNumber({}, { message: "salary_max must be a number" })
   @Min(0, { message: "salary_max cannot be negative" })
-  salary_max: number;
+  salaryMax: number;
 
   @ApiProperty({
     example: 3,
@@ -122,7 +122,7 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "required_experience is required" })
   @IsNumber({}, { message: "required_experience must be a number" })
   @Min(0, { message: "required_experience cannot be negative" })
-  required_experience: number;
+  requiredExperience: number;
 
   @ApiProperty({
     example: "monthly",
@@ -133,7 +133,7 @@ export class CreateJobPostingDto {
   @IsIn(["monthly", "yearly", "weekly"], {
     message: "salary_period must be one of: monthly, yearly, weekly",
   })
-  salary_period: string;
+  salaryPeriod: string;
 
   @ApiProperty({
     example: "senior",
@@ -144,7 +144,7 @@ export class CreateJobPostingDto {
   @IsIn(["intern", "junior", "mid", "senior", "lead"], {
     message: "experience_level must be one of: intern, junior, mid, senior, lead",
   })
-  experience_level: string;
+  experienceLevel: string;
 
   @ApiProperty({
     example: "bachelor",
@@ -155,7 +155,7 @@ export class CreateJobPostingDto {
   @IsIn(["high_school", "bachelor", "master", "phd"], {
     message: "education_level must be one of: high_school, bachelor, master, phd",
   })
-  education_level: string;
+  educationLevel: string;
 
   @ApiProperty({
     example: "2025-09-01T23:59:59Z",
@@ -163,7 +163,7 @@ export class CreateJobPostingDto {
   })
   @IsNotEmpty({ message: "application_deadline is required" })
   @IsDateString({}, { message: "application_deadline must be a valid ISO date string" })
-  application_deadline: Date;
+  applicationDeadline: Date;
 
   @ApiProperty({
     example: "active",
@@ -175,40 +175,4 @@ export class CreateJobPostingDto {
     message: "status must be one of: active, closed, draft",
   })
   status: string;
-
-  @ApiProperty({
-    example: 0,
-    description: "Number of applications received",
-  })
-  @IsOptional()
-  @IsNumber({}, { message: "application_count must be a number" })
-  @Min(0, { message: "application_count cannot be negative" })
-  application_count: number;
-
-  @ApiProperty({
-    example: 150,
-    description: "Number of views the job post received",
-  })
-  @IsOptional()
-  @IsNumber({}, { message: "view_count must be a number" })
-  @Min(0, { message: "view_count cannot be negative" })
-  view_count: number;
-
-  @ApiProperty({
-    example: "2025-08-01T12:00:00Z",
-    description: "Date and time the job was published",
-  })
-  @IsNotEmpty({ message: "published_at is required" })
-  @IsDateString({}, { message: "published_at must be a valid ISO date string" })
-  published_at: Date;
-
-  @ApiProperty({
-    example: 4.5,
-    description: "User rating or mark for the job post",
-  })
-  @IsNotEmpty({ message: "user_mark is required" })
-  @IsNumber({}, { message: "user_mark must be a number" })
-  @Min(0, { message: "user_mark cannot be less than 0" })
-  @Max(5, { message: "user_mark cannot be greater than 5" })
-  user_mark: number;
 }

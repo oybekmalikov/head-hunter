@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { JobCategory } from "src/job-category/entities/job_category.entity";
-import { JobPosting } from "src/job-postings/entities/job-posting.entity";
 import { CreateJobPostingDto } from "src/job-postings/dto/create-job-posting.dto";
 import { UpdateJobPostingDto } from "src/job-postings/dto/update-job-posting.dto";
-// import { Employer } from "src/employer/entities/employer.entity";
-// import { Companies } from "src/companies/entities/companies.entity";
+import { JobPosting } from "src/job-postings/entities/job-posting.entity";
+import { Repository } from "typeorm";
+import { Company } from "../company/entities/company.entity";
+import { Employer } from "../employers/entities/employer.entity";
 
 @Injectable()
 export class JobPostingsService {
@@ -15,10 +15,10 @@ export class JobPostingsService {
     private readonly jobRepo: Repository<JobPosting>,
     @InjectRepository(JobCategory)
     private readonly categoryRepo: Repository<JobCategory>,
-    // @InjectRepository(Employer)
-    // private readonly employerRepo: Repository<Employer>,
-    // @InjectRepository(Companies)
-    // private readonly companyRepo: Repository<Companies>
+    @InjectRepository(Employer)
+    private readonly employerRepo: Repository<Employer>,
+    @InjectRepository(Company)
+    private readonly companyRepo: Repository<Company>,
   ) {}
 
   async create(createDto: CreateJobPostingDto) {
@@ -26,25 +26,21 @@ export class JobPostingsService {
       title,
       description,
       requirements,
-      required_skills,
-      job_type,
-      work_loc,
+      requiredSkills,
+      jobType,
+      workLocation,
       location,
-      salary_min,
-      salary_max,
-      required_experience,
-      salary_period,
-      experience_level,
-      education_level,
-      application_deadline,
+      salaryMin,
+      salaryMax,
+      requiredExperience,
+      salaryPeriod,
+      experienceLevel,
+      educationLevel,
+      applicationDeadline,
       status,
-      application_count,
-      view_count,
-      published_at,
-      user_mark,
       categoryId,
-      // employerId,
-      // cmpId
+      employerId,
+      companyId,
     } = createDto;
 
     const category = await this.categoryRepo.findOneBy({ id: categoryId });
@@ -59,25 +55,21 @@ export class JobPostingsService {
       title,
       description,
       requirements,
-      required_skills,
-      job_type,
-      work_loc,
+      requiredSkills,
+      jobType,
+      workLocation,
       location,
-      salary_min,
-      salary_max,
-      required_experience,
-      salary_period,
-      experience_level,
-      education_level,
-      application_deadline,
+      salaryMin,
+      salaryMax,
+      requiredExperience,
+      salaryPeriod,
+      experienceLevel,
+      educationLevel,
+      applicationDeadline,
       status,
-      application_count,
-      view_count,
-      published_at,
-      user_mark,
-      categoryId: category,
-      // employerId: { id: employerId } as Employer,
-      // cmpId: { id: cmpId } as Companies
+      category: category,
+      employerId: employerId,
+      companyId: companyId,
     });
 
     const saved = await this.jobRepo.save(newJob);
@@ -91,9 +83,14 @@ export class JobPostingsService {
 
   async findAll() {
     const all = await this.jobRepo.find({
-      relations: ["categoryId"],
+      relations: ["category", "employer", "company"],
     });
-
+    if (all.length === 0) {
+      return {
+        message: "No job postings found.",
+        success: false,
+      };
+    }
     return {
       message: "All job postings list",
       data: all,
@@ -104,7 +101,7 @@ export class JobPostingsService {
   async findOne(id: number) {
     const one = await this.jobRepo.findOne({
       where: { id },
-      relations: ["categoryId"],
+      relations: ["category", "employer", "company"],
     });
 
     if (!one) {
@@ -125,7 +122,9 @@ export class JobPostingsService {
     const updatedFields: any = { ...updateDto };
 
     if (updateDto.categoryId) {
-      const category = await this.categoryRepo.findOneBy({ id: updateDto.categoryId });
+      const category = await this.categoryRepo.findOneBy({
+        id: updateDto.categoryId,
+      });
       if (!category) {
         return {
           message: `Category with ID ${updateDto.categoryId} not found.`,
@@ -135,19 +134,19 @@ export class JobPostingsService {
       updatedFields.categoryId = category;
     }
 
-    // if (updateDto.employerId) {
-    //   updatedFields.employerId = { id: updateDto.employerId } as Employer;
-    // }
+    if (updateDto.employerId) {
+      updatedFields.employerId = { id: updateDto.employerId } as Employer;
+    }
 
-    // if (updateDto.cmpId) {
-    //   updatedFields.cmpId = { id: updateDto.cmpId } as Companies;
-    // }
+    if (updateDto.companyId) {
+      updatedFields.coma = { id: updateDto.companyId } as Company;
+    }
 
     await this.jobRepo.update(id, updatedFields);
 
     const updated = await this.jobRepo.findOne({
       where: { id },
-      relations: ["categoryId"],
+      relations: ["category", "employer", "company"],
     });
 
     return {

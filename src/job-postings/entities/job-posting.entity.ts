@@ -1,103 +1,197 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ApiProperty } from "@nestjs/swagger";
-import { JobCategory } from "src/job-category/entities/job_category.entity";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Company } from "../../company/entities/company.entity";
+import { Employer } from "../../employers/entities/employer.entity";
+import { JobApplication } from "../../job-applications/entities/job-application.entity";
+import { JobCategory } from "../../job-category/entities/job_category.entity";
+import { JobsNotification } from "../../jobs-notifications/entities/jobs-notification.entity";
+import { SavedJob } from "../../saved-jobs/entities/saved-job.entity";
 
-@Entity("job_postings")
+@Entity({ name: "job-postings" })
 export class JobPosting {
+  @ApiProperty({
+    example: 1,
+    description: "The unique id of the job posting",
+  })
   @PrimaryGeneratedColumn()
-  @ApiProperty({ description: "Unique identifier for the job posting" })
   id: number;
 
+  @ApiProperty({
+    example: 1,
+    description: "The employer who created this job posting",
+  })
   @Column()
-  @ApiProperty({ description: "Title of the job position" })
+  employerId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: "The job category this posting belongs to",
+  })
+  @Column()
+  categoryId: number;
+
+  @ApiProperty({
+    example: 1,
+    description: "The company this job posting is for",
+  })
+  @Column()
+  companyId: number;
+
+  @ApiProperty({
+    example: "Senior Software Engineer",
+    description: "The job title",
+  })
+  @Column()
   title: string;
 
+  @ApiProperty({
+    example: "We are looking for a senior software engineer...",
+    description: "The job description",
+  })
   @Column()
-  @ApiProperty({ description: "Detailed description of the job" })
   description: string;
 
+  @ApiProperty({
+    example: "React, Node.js, TypeScript",
+    description: "The job requirements",
+  })
   @Column()
-  @ApiProperty({ description: "Job requirements" })
   requirements: string;
 
+  @ApiProperty({
+    example: "JavaScript, React, Node.js",
+    description: "Required skills for the job",
+  })
   @Column()
-  @ApiProperty({ description: "Skills required for the job" })
-  required_skills: string;
+  requiredSkills: string;
 
+  @ApiProperty({
+    example: "full-time",
+    description: "The type of job (full-time, part-time, contract)",
+  })
   @Column()
-  @ApiProperty({ description: "Type of job (e.g., full-time, part-time)" })
-  job_type: string;
+  jobType: string;
 
+  @ApiProperty({
+    example: "remote",
+    description: "Work location type (remote, on-site, hybrid)",
+  })
   @Column()
-  @ApiProperty({ description: "Work location type (e.g., remote, onsite)" })
-  work_loc: string;
+  workLocation: string;
 
+  @ApiProperty({
+    example: "Tashkent, Uzbekistan",
+    description: "The job location",
+  })
   @Column()
-  @ApiProperty({ description: "Location or city of the job" })
   location: string;
 
-  @Column()
-  @ApiProperty({ description: "Minimum salary for the position" })
-  salary_min: number;
-
-  @Column()
-  @ApiProperty({ description: "Maximum salary for the position" })
-  salary_max: number;
-
-  @Column()
-  @ApiProperty({ description: "Required years of experience" })
-  required_experience: number;
-
-  @Column()
-  @ApiProperty({ description: "Salary payment period (e.g., monthly, yearly)" })
-  salary_period: string;
-
-  @Column()
-  @ApiProperty({ description: "Experience level (e.g., junior, senior)" })
-  experience_level: string;
-
-  @Column()
-  @ApiProperty({ description: "Required education level for the job" })
-  education_level: string;
-
-  @Column({ type: "timestamp" })
   @ApiProperty({
-    description: "Deadline for job application",
-    type: String,
-    format: "date-time",
+    example: 50000,
+    description: "Minimum salary",
   })
-  application_deadline: Date;
-
   @Column()
-  @ApiProperty({ description: "Status of the job post (e.g., active, closed)" })
+  salaryMin: number;
+
+  @ApiProperty({
+    example: 80000,
+    description: "Maximum salary",
+  })
+  @Column()
+  salaryMax: number;
+
+  @ApiProperty({
+    example: 3,
+    description: "Required years of experience",
+  })
+  @Column()
+  requiredExperience: number;
+
+  @ApiProperty({
+    example: "monthly",
+    description: "Salary period (monthly, yearly, hourly)",
+  })
+  @Column()
+  salaryPeriod: string;
+
+  @ApiProperty({
+    example: "senior",
+    description: "Experience level (junior, mid, senior)",
+  })
+  @Column()
+  experienceLevel: string;
+
+  @ApiProperty({
+    example: "bachelor",
+    description: "Required education level",
+  })
+  @Column()
+  educationLevel: string;
+
+  @ApiProperty({
+    example: "2024-12-31",
+    description: "Application deadline",
+  })
+  @Column()
+  applicationDeadline: Date;
+
+  @ApiProperty({
+    example: "active",
+    description: "Job posting status",
+  })
+  @Column()
   status: string;
 
-  @Column()
-  @ApiProperty({ description: "Number of applications received" })
-  application_count: number;
-
-  @Column()
-  @ApiProperty({ description: "Number of times the job was viewed" })
-  view_count: number;
-
-  @Column({ type: "timestamp" })
   @ApiProperty({
-    description: "Date and time the job was published",
-    type: String,
-    format: "date-time",
+    example: 15,
+    description: "Number of applications received",
   })
-  published_at: Date;
+  @Column({ default: 0 })
+  applicationCount: number;
 
-  @Column()
-  @ApiProperty({ description: "User rating or mark for the job post" })
-  user_mark: number;
+  @ApiProperty({
+    example: 150,
+    description: "Number of views",
+  })
+  @Column({ default: 0 })
+  viewCount: number;
 
-  @ManyToOne(() => JobCategory, (category) => category.jobcategory)
-  categoryId: JobCategory;
+  @ApiProperty({
+    example: "2024-01-15",
+    description: "When the job was published",
+  })
+  @Column({default: () => "CURRENT_TIMESTAMP"})
+  publishedAt: Date;
 
-  // @ManyToOne(() => Employer, (employer) => employer.joppost)
-  // employerId: Employer;
+  @ApiProperty({
+    example: 4.5,
+    description: "User rating for this job posting",
+  })
+  @Column({ default: 0 })
+  userMark: number;
 
-  // @ManyToOne(() => Companies, (companies) => companies.joppost)
-  // cmpId: Companies;
+  // Relations
+  @ManyToOne(() => Employer, (employer) => employer.jobPostings)
+  employer: Employer;
+
+  @ManyToOne(() => JobCategory, (category) => category.jobPostings)
+  category: JobCategory;
+
+  @ManyToOne(() => Company, (company) => company.jobPostings)
+  company: Company;
+
+  @OneToMany(() => JobApplication, (application) => application.jobPosting)
+  applications: JobApplication[];
+
+  @OneToMany(() => SavedJob, (savedJob) => savedJob.jobPosting)
+  savedJobs: SavedJob[];
+
+  @OneToMany(() => JobsNotification, (notification) => notification.jobPosting)
+  notifications: JobsNotification[];
 }

@@ -25,7 +25,7 @@ export class JobPostingsController {
   constructor(private readonly jobPostingsService: JobPostingsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new job posting' })
+  @ApiOperation({ summary: 'Create a new job posting', description: '' })
   @ApiResponse({ status: 201, description: 'Job posting created successfully' })
   @ApiBadRequestResponse({
     description: 'Validation failed. Check your request body.',
