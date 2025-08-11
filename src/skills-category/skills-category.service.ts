@@ -9,7 +9,7 @@ import { Repository } from "typeorm";
 export class SkillsCategoryService {
   constructor(
     @InjectRepository(SkillsCategory)
-    private readonly skillcategoryRepo: Repository<SkillsCategory>
+    private readonly skillcategoryRepo: Repository<SkillsCategory>,
   ) {}
 
   async create(createSkillCategoryDto: CreateSkillsCategoryDto) {
@@ -45,6 +45,26 @@ export class SkillsCategoryService {
       message: "Skill category details",
       date: one,
       success: true,
+    };
+  }
+
+  async findAllByName(name: string) {
+    const skills = await this.skillcategoryRepo.find({
+      where: { name },
+    });
+
+    if (!skills.length) {
+      return {
+        success: false,
+        message: "Skill not found",
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: "Skills found",
+      data: skills,
     };
   }
 

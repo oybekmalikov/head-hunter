@@ -118,6 +118,204 @@ export class JobPostingsService {
     };
   }
 
+  async findByEmployerId(employerId: number) {
+    const jobs = await this.jobRepo.find({ where: { employerId } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs found for employerId ${employerId}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByCategoryId(categoryId: number) {
+    const jobs = await this.jobRepo.find({ where: { categoryId } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs found for categoryId ${categoryId}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByCompanyId(companyId: number) {
+    const jobs = await this.jobRepo.find({ where: { companyId } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs found for companyId ${companyId}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByRequirements(requirements: string) {
+    const jobs = await this.jobRepo.find({
+      where: { requirements },
+    });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs match requirements: ${requirements}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByRequiredSkills(requiredSkills: string) {
+    const jobs = await this.jobRepo.find({
+      where: { requiredSkills },
+    });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs match skills: ${requiredSkills}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByJobType(jobType: string) {
+    const jobs = await this.jobRepo.find({ where: { jobType } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with jobType: ${jobType}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByWorkLocation(workLocation: string) {
+    const jobs = await this.jobRepo.find({ where: { workLocation } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with workLocation: ${workLocation}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByLocation(location: string) {
+    const jobs = await this.jobRepo.find({
+      where: { location },
+    });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs in location: ${location}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findBySalaryMin(salaryMin: number) {
+    const jobs = await this.jobRepo.find({ where: { salaryMin } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with salaryMin: ${salaryMin}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findBySalaryMax(salaryMax: number) {
+    const jobs = await this.jobRepo.find({ where: { salaryMax } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with salaryMax: ${salaryMax}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findBySalaryPeriod(salaryPeriod: string) {
+    const jobs = await this.jobRepo.find({ where: { salaryPeriod } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with salaryPeriod: ${salaryPeriod}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByExperienceLevel(experienceLevel: string) {
+    const jobs = await this.jobRepo.find({ where: { experienceLevel } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with experienceLevel: ${experienceLevel}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByEducationLevel(educationLevel: string) {
+    const jobs = await this.jobRepo.find({ where: { educationLevel } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with educationLevel: ${educationLevel}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByStatus(status: string) {
+    const jobs = await this.jobRepo.find({ where: { status } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with status: ${status}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByPublishedAt(publishedAt: Date) {
+    const jobs = await this.jobRepo.find({ where: { publishedAt } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs published at: ${publishedAt}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
+  async findByUserMark(userMark: number) {
+    const jobs = await this.jobRepo.find({ where: { userMark } });
+    if (!jobs.length) {
+      return {
+        success: false,
+        message: `No jobs with userMark: ${userMark}`,
+        data: [],
+      };
+    }
+    return { success: true, message: "Jobs found", data: jobs };
+  }
+
   async update(id: number, updateDto: UpdateJobPostingDto) {
     const updatedFields: any = { ...updateDto };
 

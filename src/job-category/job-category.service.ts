@@ -48,6 +48,49 @@ export class JobCategoryService {
     };
   }
 
+  // Find by name
+  async findAllByName(name: string) {
+    const categories = await this.jobcategoryRepo.find({
+      relations: ["jobPostings"],
+    });
+
+    if (!categories.length) {
+      return {
+        message: "No job categories found with the given name",
+        data: [],
+        success: false,
+      };
+    }
+
+    return {
+      message: "Job categories retrieved successfully",
+      data: categories,
+      success: true,
+    };
+  }
+
+  // Find by isActive
+  async findAllByIsActive(isActive: boolean) {
+    const categories = await this.jobcategoryRepo.find({
+      where: { isActive },
+      relations: ["jobPostings"],
+    });
+
+    if (!categories.length) {
+      return {
+        message: `No ${isActive ? "active" : "inactive"} job categories found`,
+        data: [],
+        success: false,
+      };
+    }
+
+    return {
+      message: "Job categories retrieved successfully",
+      data: categories,
+      success: true,
+    };
+  }
+
   async update(id: number, updateJobCategoryDto: UpdateJobCategoryDto) {
     const upd = await this.jobcategoryRepo.preload({
       id,

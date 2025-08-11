@@ -23,6 +23,7 @@ export class SkillsService {
     if (!category) {
       return {
         message: `Skill category with ID ${categoryId} not found.`,
+        data: [],
         success: false,
       };
     }
@@ -45,7 +46,7 @@ export class SkillsService {
     });
 
     if (!all || all.length === 0) {
-      return { message: "No skills found.", success: false };
+      return { message: "No skills found.", success: false, data: [] };
     }
 
     return {
@@ -62,13 +63,69 @@ export class SkillsService {
     });
 
     if (!one) {
-      return { message: `Skill with ID ${id} not found.`, success: false };
+      return {
+        message: `Skill with ID ${id} not found.`,
+        data: [],
+        success: false,
+      };
     }
 
     return {
       message: "Skill details",
       data: one,
       success: true,
+    };
+  }
+  async findAllByName(name: string) {
+    const skills = await this.skillRepo.find({
+      where: { name },
+    });
+
+    if (!skills.length) {
+      return {
+        success: false,
+        message: "Skill not found",
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: "Skills found",
+      data: skills,
+    };
+  }
+
+  async findAllByCategoryId(categoryId: number) {
+    const category = await this.categoryRepo.findOne({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      return {
+        success: false,
+        message: `Skill category with ID ${categoryId} not found.`,
+        data: [],
+      };
+    }
+
+    const skills = await this.skillRepo.find({
+      where: { category: { id: categoryId } },
+      relations: ["category"],
+    });
+
+    if (!skills.length) {
+      return {
+        success: false,
+        message: `No skills found for category ID ${categoryId}.`,
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: `Skills found for category ID ${categoryId}.`,
+      data: skills,
     };
   }
 
@@ -86,6 +143,7 @@ export class SkillsService {
     if (!upd) {
       return {
         message: "Failed to update skill",
+        data: [],
         success: false,
       };
     }
@@ -103,6 +161,7 @@ export class SkillsService {
     if (del.affected === 0) {
       return {
         message: `Skill with ID ${id} not found. Deletion failed.`,
+        data: [],
         success: false,
       };
     }
