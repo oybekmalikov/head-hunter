@@ -52,6 +52,19 @@ export class JobSeekerSkillsController {
   }
 
   @ApiOperation({
+    summary:"Get all job seeker skills by job seeker id",
+    description:"Get all job seeker skills by job seeker id",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The list of all job seeker skills.",
+  })
+  @Get("/job-seeker/:job_seeker_id")
+  jobSeekerSkills(@Param("job_seeker_id") job_seeker_id: string) {
+    return this.jobSeekerSkillsService.jobSeekerSkills(+job_seeker_id);
+  }
+
+  @ApiOperation({
     summary: "Update a job seeker skill",
     description: "Update an existing job seeker skill using its unique identifier.",
   })

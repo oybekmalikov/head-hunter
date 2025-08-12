@@ -72,6 +72,24 @@ export class JobSeekerPostingService {
     };
   }
 
+  async findByJobSeekerIdPosting(jobSeekerId: number) {
+    const data = await this.jobSeekerPostingRepo.find({
+      where: { jobSeekerId },
+      relations: ["jobSeeker", "jobSeekerSkills"],
+    });
+    if (data.length === 0 || !data) {
+      return {
+        message: "No job seeker postings found",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seeker Postings retrieved successfully",
+      data,
+      success: true,
+    };
+  }
+
   async update(
     id: number,
     updateJobSeekerPostingDto: UpdateJobSeekerPostingDto,

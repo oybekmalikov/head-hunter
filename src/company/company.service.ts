@@ -50,6 +50,21 @@ export class CompanyService {
     };
   }
 
+  async findOneByName(name: string) {
+    const data = await this.companyRepo.findOne({ where: { name } });
+    if (!data) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Company retrieved successfully",
+      data,
+      success: true,
+    };
+  }
+
   async update(id: number, updateCompanyDto: UpdateCompanyDto) {
     const updated = await this.companyRepo.preload({ id, ...updateCompanyDto });
     if (!updated) {

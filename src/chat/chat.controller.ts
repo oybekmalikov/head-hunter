@@ -38,6 +38,27 @@ export class ChatController {
     return this.chatService.findOne(+id);
   }
 
+  @Get('title/:title')
+  @ApiOperation({ summary: 'Get a single chat message by title', description: 'Get a single chat message by title'})
+  @ApiResponse({ status: 200, description: 'Chat message retrieved successfully' })
+  findTitle(@Param('title') title: string) {
+    return this.chatService.findTitle(title);
+  }
+
+  @Get('content/:content')
+  @ApiOperation({ summary: 'Get a single chat message by content', description: 'Get a single chat message by content'})
+  @ApiResponse({ status: 200, description: 'Chat message retrieved successfully' })
+  findByContent(@Param('content') content: string) {
+    return this.chatService.findByContent(content);
+  }
+
+  @Get('sender/:senderId')
+  @ApiOperation({ summary: 'Get a single chat message by sender ID', description: 'Get a single chat message by sender ID'})
+  @ApiResponse({ status: 200, description: 'Chat message retrieved successfully' })
+  findBySender(@Param('senderId') senderId: number) {
+    return this.chatService.findBySender(senderId);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a chat message', description: 'Update a chat message' })
   @ApiResponse({ status: 200, description: 'Chat message updated successfully' })

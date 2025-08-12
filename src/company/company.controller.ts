@@ -31,6 +31,13 @@ export class CompanyController {
     return this.companyService.findOne(+id);
   }
 
+  @Get('name/:name')
+  @ApiOperation({ summary: 'Get Companies by name',description: 'This endpoint retrieves a company by its name.' })
+  @ApiResponse({ status: 200, description: 'Get companies by name' })
+  findOneByName(@Body('name') name: string) {
+    return this.companyService.findOneByName(name);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Edit Company',description: 'This endpoint allows you to update a company by its ID.' })
   @ApiResponse({ status: 200, description: 'Company updated' })

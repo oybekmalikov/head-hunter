@@ -76,6 +76,24 @@ export class JobSeekerSkillsService {
     };
   }
 
+  async jobSeekerSkills(job_seeker_id: number) {
+    const data = await this.jobSeekerSkillsRepo.find({
+      where: { jobSeekerId: job_seeker_id },
+      relations: ["jobSeeker", "skill"],
+    })
+    if (!data) {
+      return {
+        message: "Job Seeker Skills not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seeker Skills retrieved successfully",
+      data,
+      success: true,
+    };
+  }
+
   async update(id: number, updateDto: UpdateJobSeekerSkillDto) {
     const jobSeeker =
       updateDto.jobSeekerId !== undefined

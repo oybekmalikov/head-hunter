@@ -35,6 +35,7 @@ export class ChatService {
       success: true,
     };
   }
+
   async findAll() {
     const chats = await this.chatRepo.find({
       relations: ["jobApplication", "sender", "recipient"],
@@ -51,6 +52,7 @@ export class ChatService {
       success: true,
     };
   }
+
   async findOne(id: number) {
     const chat = await this.chatRepo.findOne({
       where: { id },
@@ -68,6 +70,61 @@ export class ChatService {
       success: true,
     };
   }
+
+  async findTitle(title: string) {
+    const chat = await this.chatRepo.findOne({
+      where: { title },
+      relations: ["sender", "recipient"],
+    });
+    if (!chat) {
+      return {
+        message: "Chat not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Chat retrieved successfully",
+      data: chat,
+      success: true,
+    };
+  }
+
+  async findBySender(senderId: number) {
+    const chats = await this.chatRepo.find({
+      where: { senderId },
+      relations: ["jobApplication", "sender", "recipient"],
+    });
+    if (!chats || chats.length === 0) {
+      return {
+        message: "No chats found",
+        success: false,
+      };
+    }
+    return {
+      message: "Chats retrieved successfully",
+      data: chats,
+      success: true,
+    };
+  }
+
+  async findByContent(content: string) {
+    const chats = await this.chatRepo.find({
+      where: { content },
+      relations: ["jobApplication", "sender", "recipient"],
+    });
+    if (!chats || chats.length === 0) {
+      return {
+        message: "No chats found",
+        success: false,
+      };
+    }
+    return {
+      message: "Chats retrieved successfully",
+      data: chats,
+      success: true,
+    };
+  }
+
   async update(id: number, updateChatDto: UpdateChatDto) {
     const updated = await this.chatRepo.preload({ id, ...updateChatDto });
     if (!updated) {
@@ -82,6 +139,7 @@ export class ChatService {
       success: true,
     };
   }
+
   async remove(id: number) {
     const chat = await this.chatRepo.delete({ id });
     if (!chat) {
