@@ -20,17 +20,23 @@ export class JobSeekersService {
     };
   }
 
-  async findAll() {
-    const data = await this.jobSeekerRepo.find({ relations: ["user"] });
+  async findAll(page: number, limit: number) {
+    const [data, total] = await this.jobSeekerRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+      relations: ["user"],
+    })
     if (!data || data.length === 0) {
       return {
-        message: "No Job Seekers found!",
+        message: "Job Seekers not found!",
         success: false,
       };
     }
     return {
       message: "Job Seekers retrieved successfully!",
       data,
+      total,
       success: true,
     };
   }

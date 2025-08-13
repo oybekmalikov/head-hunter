@@ -38,9 +38,14 @@ export class UsersService {
     throw new ConflictException("There is a user with this email.")
   }
 
-  async findAll() {
-    const users = await this.userRepo.find()
-    if (!users) {
+  async findAll(page: number, limit: number) {
+    const [data, total] = await this.userRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+      relations: ["employers", "jobSeekers"]
+    })
+    if (!data) {
       return {
         message: "Users not found",
         success: false
@@ -48,7 +53,8 @@ export class UsersService {
     }
     return {
       message: "Users retrieved successfully",
-      data: users,
+      data: data,
+      total: total,
       success: true
     };
   }

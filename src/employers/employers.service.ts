@@ -31,11 +31,13 @@ export class EmployersService {
     };
   }
 
-  async findAll() {
-    const employers = await this.employerRepo.find({
+  async findAll(page: number, limit: number) {
+    const [data, total] = await this.employerRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
       relations: ["user", "company"],
     });
-    if (!employers || employers.length === 0) {
+    if (!data || data.length === 0) {
       return {
         message: "No employers found",
         success: false,
@@ -43,7 +45,8 @@ export class EmployersService {
     }
     return {
       message: "Employers retrieved successfully",
-      data: employers,
+      data: data,
+      total: total,
       success: true,
     };
   }

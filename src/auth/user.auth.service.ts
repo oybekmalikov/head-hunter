@@ -48,7 +48,11 @@ export class UserAuthService {
     if (user) {
       throw new BadRequestException("Email already exists!");
     }
-    return this.usersService.create(signInDto);
+    return {
+      data: await this.usersService.create(signInDto),
+      message: "Please check your email for OTP",
+      success: true,
+    }
   }
 
   async signIn(signInDto: SignInDto, res: Response) {
