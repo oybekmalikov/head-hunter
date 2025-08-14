@@ -5,8 +5,7 @@ import * as cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
 import { ErrorHandler } from "./common/error-handling/errorhandler";
 import { LoggerService } from "./common/logger/logger.service";
-import "./crypto-polyfill";
-async function start() {
+export async function start() {
   try {
     const PORT = process.env.PORT || 3030;
     const HOST = process.env.HOST || "localhost";
