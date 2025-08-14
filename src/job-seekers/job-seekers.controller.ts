@@ -49,7 +49,6 @@ export class JobSeekersController {
   @UseGuards(AuthGuard)
   @Get()
   findAll(@Req() req: Request
-
   ) {
     const user = (req as any).user;
     if (user.role === "admin") {
