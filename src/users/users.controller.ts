@@ -20,7 +20,9 @@ import { UsersService } from "./users.service";
 
 @Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+  ) {}
 
   @ApiOperation({
     summary: "Create user",
@@ -65,6 +67,8 @@ export class UsersController {
     const user = (req as any).user;
     if (user.role === "admin") {
       return this.usersService.findAll();
+    } else if (user.role === "jobseeker" || user.role === "employer") {
+      return this.usersService.findOne(user.id);
     }
     throw new ForbiddenException("Access denied");
   }
@@ -150,5 +154,20 @@ export class UsersController {
       return this.usersService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({
+    summary: "Get user profile",
+    description: "Get user profile by id",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The user profile was successfully received.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  userProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.usersService.userProfile(user.id);
   }
 }

@@ -132,4 +132,19 @@ export class EmployersController {
   remove(@Param("id") id: string) {
     return this.employersService.remove(+id);
   }
+
+  @ApiOperation({
+    summary: "Get employer profile",
+    description: "Get employer profile by id",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The employer profile was successfully received.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  userProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.employersService.userProfile(user.id);
+  }
 }

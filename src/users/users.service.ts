@@ -212,4 +212,18 @@ export class UsersService {
       success: true,
     };
   }
+  async userProfile(id: number) {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: ["employers", "jobSeekers"],
+    });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return {
+      message: "User profile retrieved successfully",
+      data: user,
+      success: true,
+    };
+  }
 }
