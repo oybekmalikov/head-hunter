@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "nest build",
-    "postbuild": "copy src\\crypto-fix.js dist\\",
+    "postbuild": "node scripts/copy-crypto.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
