@@ -3,8 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
-// import { ErrorHandler } from "./common/error-handling/errorhandler";
-// import { LoggerService } from "./common/logger/logger.service";
+import { ErrorHandler } from "./common/error-handling/errorhandler";
+import { LoggerService } from "./common/logger/logger.service";
 async function start() {
 	try {
 		const PORT = process.env.PORT || 3030;
@@ -27,8 +27,8 @@ async function start() {
 			.build();
 		const document = SwaggerModule.createDocument(app, config);
 		SwaggerModule.setup('api/docs', app, document);
-		// const logger = app.get(LoggerService);
-		// app.useGlobalFilters(new ErrorHandler(logger));
+		const logger = app.get(LoggerService);
+		app.useGlobalFilters(new ErrorHandler(logger));
 		await app.listen(PORT, () => {
 			console.log(`Server started on http://${HOST}:${PORT}`);
 		});
