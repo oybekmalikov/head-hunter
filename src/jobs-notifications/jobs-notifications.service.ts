@@ -47,7 +47,7 @@ export class JobsNotificationsService {
 		});
 		if (!jobNotification) {
 			return {
-				message: `Job notification with id ${id} not found`,
+				message: `Job notification not found with id ${id}`,
 				data: null,
 				success: false,
 			};
@@ -92,6 +92,24 @@ export class JobsNotificationsService {
 		return {
 			message: `Job notification with id ${id} removed successfully`,
 			data: { affected: jobNotification.affected },
+			success: true,
+		};
+	}
+
+	async findByJobSeekerId(jobSeekerId: number) {
+		const jobNotifications = await this.jobNotificationRepo.find({
+			where: { jobSeekerId: jobSeekerId  },
+			relations: ["jobPosting", "jobSeeker"],
+		});
+		if (!jobNotifications || jobNotifications.length === 0) {
+			return {
+				message: `No job notifications found for job seeker with id ${jobSeekerId}`,
+				success: false,
+			};
+		}
+		return {
+			message: `Job notifications for job seeker with id ${jobSeekerId} retrieved successfully`,
+			data: jobNotifications,
 			success: true,
 		};
 	}

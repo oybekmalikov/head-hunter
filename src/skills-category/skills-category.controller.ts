@@ -1,99 +1,131 @@
 import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	Param,
-	Patch,
-	Post,
-} from '@nestjs/common';
-import {
-	ApiBody,
-	ApiOperation,
-	ApiParam,
-	ApiResponse,
-	ApiTags,
-} from '@nestjs/swagger';
-import { CreateSkillsCategoryDto } from './dto/create-skills_category.dto';
-import { UpdateSkillsCategoryDto } from './dto/update-skills_category.dto';
-import { SkillsCategoryService } from './skills-category.service';
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { accessMatrix } from "../app.constants";
+import { AccessControlGuard } from "../common/guards/access-control.guard";
+import { AuthGuard } from "../common/guards/auth.guard";
+import { CreateSkillsCategoryDto } from "./dto/create-skills_category.dto";
+import { UpdateSkillsCategoryDto } from "./dto/update-skills_category.dto";
+import { SkillsCategoryService } from "./skills-category.service";
 
-@ApiTags('Skills Category')
-@Controller('skills-category')
+@ApiTags("Skills Category")
+@Controller("skills-category")
 export class SkillsCategoryController {
-	constructor(private readonly skillsCategoryService: SkillsCategoryService) {}
+  constructor(private readonly skillsCategoryService: SkillsCategoryService) {}
 
-	@Post()
-	@ApiOperation({ summary: 'Create a new skills category' })
-	@ApiBody({ type: CreateSkillsCategoryDto })
-	@ApiResponse({
-		status: 201,
-		description: 'The category has been successfully created.',
-	})
-	@ApiResponse({
-		status: 400,
-		description: 'Bad request. Validation failed or missing fields.',
-	})
-	create(@Body() createSkillsCategoryDto: CreateSkillsCategoryDto) {
-		return this.skillsCategoryService.create(createSkillsCategoryDto);
-	}
+  @ApiOperation({ summary: "Create a new skills category" })
+  @ApiResponse({
+    status: 201,
+    description: "The category has been successfully created.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "skillsCategory"))
+  @Post()
+  create(
+    @Body() createSkillsCategoryDto: CreateSkillsCategoryDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.skillsCategoryService.create(createSkillsCategoryDto);
+    }
+    throw new ForbiddenException("Access denied");
+  }
 
-	@Get()
-	@ApiOperation({ summary: 'Get all skills categories' })
-	@ApiResponse({
-		status: 200,
-		description: 'A list of all skill categories.',
-	})
-	findAll() {
-		return this.skillsCategoryService.findAll();
-	}
+  @ApiOperation({ summary: "Get all skills categories" })
+  @ApiResponse({
+    status: 200,
+    description: "A list of all skill categories.",
+  })
+  @UseGuards(AuthGuard)
+  @Get()
+  findAll() {
+    return this.skillsCategoryService.findAll();
+  }
 
-	@Get(':id')
-	@ApiOperation({ summary: 'Get a single skills category by ID' })
-	@ApiParam({ name: 'id', description: 'ID of the category', example: 1 })
-	@ApiResponse({
-		status: 200,
-		description: 'The skill category was found.',
-	})
-	@ApiResponse({
-		status: 404,
-		description: 'Category not found.',
-	})
-	findOne(@Param('id') id: string) {
-		return this.skillsCategoryService.findOne(+id);
-	}
+  @ApiOperation({
+    summary: "Get all skills categories with pagination",
+    description: "Returns a paginated list of skill categories",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "A paginated list of skill categories.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("pagination")
+  findAllWithPagination(
+    @Query("page") page: string,
+    @Query("limit") limit: string,
+  ) {
+    return this.skillsCategoryService.findAllWithPagination(+page, +limit);
+  }
 
-	@Patch(':id')
-	@ApiOperation({ summary: 'Update a skills category by ID' })
-	@ApiParam({ name: 'id', description: 'ID of the category', example: 1 })
-	@ApiBody({ type: UpdateSkillsCategoryDto })
-	@ApiResponse({
-		status: 200,
-		description: 'The category was successfully updated.',
-	})
-	@ApiResponse({
-		status: 404,
-		description: 'Category not found.',
-	})
-	update(
-		@Param('id') id: string,
-		@Body() updateSkillsCategoryDto: UpdateSkillsCategoryDto
-	) {
-		return this.skillsCategoryService.update(+id, updateSkillsCategoryDto);
-	}
+  @ApiOperation({ summary: "Get a single skills category by ID" })
+  @ApiResponse({
+    status: 200,
+    description: "The skill category was found.",
+  })
+  @UseGuards(AuthGuard)
+  @Get(":id")
+  findOne(@Param("id") id: string) {
+    return this.skillsCategoryService.findOne(+id);
+  }
 
-	@Delete(':id')
-	@ApiOperation({ summary: 'Delete a skills category by ID' })
-	@ApiParam({ name: 'id', description: 'ID of the category', example: 1 })
-	@ApiResponse({
-		status: 200,
-		description: 'The category was successfully deleted.',
-	})
-	@ApiResponse({
-		status: 404,
-		description: 'Category not found.',
-	})
-	remove(@Param('id') id: string) {
-		return this.skillsCategoryService.remove(+id);
-	}
+  @ApiOperation({ summary: "Update a skills category by ID" })
+  @ApiBody({ type: UpdateSkillsCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: "The category was successfully updated.",
+  })
+  @UseGuards(AuthGuard)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateSkillsCategoryDto: UpdateSkillsCategoryDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.skillsCategoryService.update(+id, updateSkillsCategoryDto);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({ summary: "Delete a skills category by ID" })
+  @ApiResponse({
+    status: 200,
+    description: "The category was successfully deleted.",
+  })
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.skillsCategoryService.remove(+id);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  @ApiOperation({
+    summary: "Find all skills by name",
+    description: "Returns a list of skills by name",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "A list of all skill categories.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("skill-category-name/:name")
+  async findAllByName(@Param("name") name: string) {
+    return this.skillsCategoryService.findAllByName(name);
+  }
 }

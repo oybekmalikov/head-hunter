@@ -123,4 +123,22 @@ export class JobSeekerSkillsService {
       success: true,
     };
   }
+
+  async getAllSkillsByJobSeekerId(id: number) {
+    const data = await this.jobSeekerSkillsRepo.find({
+      where: { jobSeekerId: id },
+      relations: ["jobSeeker", "skill"],
+    });
+    if (data.length === 0) {
+      return {
+        message: "No Job Seeker Skills found",
+        success: true,
+      };
+    }
+    return {
+      message: "Job Seeker Skills retrieved successfully",
+      data,
+      success: true,
+    };
+  }
 }

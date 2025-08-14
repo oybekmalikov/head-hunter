@@ -51,6 +51,26 @@ export class EmployersService {
     };
   }
 
+  async findAllByPagination(page: number, limit: number) {
+    const [data, total] = await this.employerRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: ["user", "company"],
+    });
+    if (!data || data.length === 0) {
+      return {
+        message: "No employers found",
+        success: false,
+      };
+    }
+    return {
+      message: "Employers retrieved successfully",
+      data: data,
+      total: total,
+      success: true,
+    };
+  }
+
   async findOne(id: number) {
     const employer = await this.employerRepo.findOne({
       where: { id },
@@ -114,5 +134,19 @@ export class EmployersService {
   }
   async findByRelation(userId: number, companyId: number) {
     return this.employerRepo.findOne({ where: { userId, companyId } });
+  }
+  async userProfile(id: number) {
+    const user = await this.employerRepo.findOne({
+      where: { id },
+      relations: ["user", "company"],
+    });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return {
+      message: "Employer profile retrieved successfully",
+      data: user,
+      success: true,
+    };
   }
 }

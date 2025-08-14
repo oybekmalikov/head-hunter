@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { JobSeekersService } from "../job-seekers/job-seekers.service";
-import { SkillsService } from "../skills/skills.service";
 import { CreateJobSeekerPostingDto } from "./dto/create-job-seeker-posting.dto";
 import { UpdateJobSeekerPostingDto } from "./dto/update-job-seeker-posting.dto";
 import { JobSeekerPosting } from "./entities/job-seeker-posting.entity";
@@ -39,7 +38,7 @@ export class JobSeekerPostingService {
 
   async findAll() {
     const data = await this.jobSeekerPostingRepo.find({
-      relations: ["jobSeeker", "jobSeekerSkills"],
+      relations: ["jobSeeker", "jobSeekerSkills", "jobSeekerSkills.skill"],
     });
     if (data.length === 0 || !data) {
       return {
@@ -57,7 +56,7 @@ export class JobSeekerPostingService {
   async findOne(id: number) {
     const data = await this.jobSeekerPostingRepo.findOne({
       where: { id },
-      relations: ["jobSeeker", "jobSeekerSkills"],
+      relations: ["jobSeeker", "jobSeekerSkills", "jobSeekerSkills.skill"],
     });
     if (!data) {
       return {
@@ -113,6 +112,99 @@ export class JobSeekerPostingService {
     return {
       message: "Job Seeker Posting deleted successfully",
       data: { affected: deleted.affected },
+      success: true,
+    };
+  }
+
+  async getAllJobSeekerPostings(jobSeekerId: number) {
+    const data = await this.jobSeekerPostingRepo.find({
+      where: { jobSeekerId },
+      relations: ["jobSeeker", "jobSeekerSkills"],
+    });
+    if (data.length === 0 || !data) {
+      return {
+        message: "No job seeker postings found",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seeker Postings retrieved successfully",
+      data,
+      success: true,
+    };
+  }
+
+  async getJobSeekersWithSalary(minSalary: number, maxSalary: number) {
+    const datas = await this.jobSeekerPostingRepo
+      .createQueryBuilder("jobSeekerPosting")
+      .where("jobSeekerPosting.salary >= :minSalary", { minSalary })
+      .andWhere("jobSeekerPosting.salary <= :maxSalary", { maxSalary })
+      .leftJoinAndSelect("jobSeekerPosting.jobSeeker", "jobSeeker")
+      .leftJoinAndSelect("jobSeekerPosting.jobSeekerSkills", "jobSeekerSkills")
+      .orderBy("jobSeekerPosting.salary", "ASC")
+      .getMany();
+
+    if (datas.length === 0 || !datas) {
+      return {
+        message: "No job seeker postings found",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seeker Postings retrieved successfully",
+      datas,
+      success: true,
+    };
+  }
+
+  async getAllJobSeekerPostingsByCity(name: string) {
+    const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+    const datas = await this.jobSeekerPostingRepo
+      .createQueryBuilder("jobSeekerPosting")
+      .where("jobSeekerPosting.city LIKE :name", { name: `%${formattedName}%` })
+      .leftJoinAndSelect("jobSeekerPosting.jobSeeker", "jobSeeker")
+      .leftJoinAndSelect("jobSeekerPosting.jobSeekerSkills", "jobSeekerSkills")
+      .leftJoinAndSelect("jobSeekerPosting.jobSeekerSkills", "skill")
+      .getMany();
+    if (!datas || datas.length === 0) {
+      return {
+        message: "No job seeker postings found",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seeker Postings retrieved successfully",
+      datas,
+      success: true,
+    };
+  }
+
+  async getAllJobSeekerPostingsBySkills(skills: string[]) {
+    const jobSeekers = await this.jobSeekerPostingRepo.find({
+      relations: ["jobSeeker", "jobSeekerSkills", "jobSeekerSkills.skill"],
+    });
+    for (const jobSeeker of jobSeekers) {
+      let suitableCount = 0;
+      for (const skill of jobSeeker.jobSeekerSkills) {
+        if (skills.includes(skill.skill.name)) {
+          suitableCount++;
+        }
+      }
+      (jobSeeker as any).suitablePresetage =
+        Number((suitableCount / skills.length).toFixed(2)) * 100;
+    }
+    if (!jobSeekers || jobSeekers.length === 0) {
+      return {
+        message: "No job seeker postings found",
+        success: false,
+      };
+    }
+    jobSeekers.sort(
+      (a, b) => (b as any).suitablePresetage - (a as any).suitablePresetage,
+    );
+    return {
+      message: "Job Seeker Postings retrieved successfully",
+      data: jobSeekers,
       success: true,
     };
   }

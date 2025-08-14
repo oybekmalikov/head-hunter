@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateJobSeekerDto } from "./dto/create-job-seeker.dto";
@@ -12,7 +12,7 @@ export class JobSeekersService {
     private readonly jobSeekerRepo: Repository<JobSeeker>,
   ) {}
   async create(createJobSeekerDto: CreateJobSeekerDto) {
-    const jobSeeker =await this.jobSeekerRepo.save(createJobSeekerDto);
+    const jobSeeker = await this.jobSeekerRepo.save(createJobSeekerDto);
     return {
       message: "Job Seeker created successfully!",
       data: jobSeeker,
@@ -27,6 +27,27 @@ export class JobSeekersService {
       order: { id: "ASC" },
       relations: ["user"],
     })
+    if (!data || data.length === 0) {
+      return {
+        message: "Job Seekers not found!",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seekers retrieved successfully!",
+      data,
+      total,
+      success: true,
+    };
+  }
+
+  async findAllByPagination(page: number, limit: number) {
+    const [data, total] = await this.jobSeekerRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+      relations: ["user"],
+    });
     if (!data || data.length === 0) {
       return {
         message: "Job Seekers not found!",
@@ -88,6 +109,26 @@ export class JobSeekersService {
     return {
       message: "Job Seeker deleted successfully! ",
       data: { affected: deleted.affected },
+      success: true,
+    };
+  }
+  async userProfile(id: number) {
+    const user = await this.jobSeekerRepo.findOne({
+      where: { id },
+      relations: [
+        "user",
+        "jobSeekerSkills",
+        "jobSeekerPostings",
+        "workExperiences",
+        "educations",
+      ],
+    });
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return {
+      message: "Job Seeker profile retrieved successfully",
+      data: user,
       success: true,
     };
   }

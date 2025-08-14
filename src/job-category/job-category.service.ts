@@ -22,13 +22,31 @@ export class JobCategoryService {
   }
 
   async findAll() {
-    const all = await this.jobcategoryRepo.find();
+    const all = await this.jobcategoryRepo.find({ order: { id: "ASC" } });
     if (!all || all.length === 0) {
       return { message: "No job categories found.", success: false };
     }
     return {
       message: "List of all job categories.",
       data: all,
+      success: true,
+    };
+  }
+
+  async findAllByPagination(page: number, limit: number) {
+    const [result, total] = await this.jobcategoryRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+
+    if (!result || result.length === 0) {
+      return { message: "No job categories found.", success: false };
+    }
+
+    return {
+      message: "Job categories retrieved successfully.",
+      data: { data: result, total, page, limit },
       success: true,
     };
   }
@@ -74,6 +92,45 @@ export class JobCategoryService {
     return {
       message: `Job category with ID ${id} was successfully deleted.`,
       data: del.affected,
+      success: true,
+    };
+  }
+
+  async findAllByName(name: string) {
+    const categories = await this.jobcategoryRepo
+      .createQueryBuilder("job_category")
+      .where("job_category.name LIKE :name", { name: `%${name}%` })
+      .getMany();
+
+    if (!categories.length) {
+      return {
+        message: "No job categories found with the given name",
+        success: false,
+      };
+    }
+
+    return {
+      message: "Job categories retrieved successfully",
+      data: categories,
+      success: true,
+    };
+  }
+
+  async findAllByIsActive(isActive: boolean) {
+    const categories = await this.jobcategoryRepo.find({
+      where: { isActive },
+    });
+
+    if (!categories.length) {
+      return {
+        message: `No ${isActive ? "active" : "inactive"} job categories found`,
+        success: false,
+      };
+    }
+
+    return {
+      message: "Job categories retrieved successfully",
+      data: categories,
       success: true,
     };
   }

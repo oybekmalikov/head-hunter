@@ -1,151 +1,173 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { User } from './entities/user.entity';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AuthGuard } from "../common/guards/auth.guard";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { User } from "./entities/user.entity";
+import { UsersService } from "./users.service";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(
+    private readonly usersService: UsersService,
+  ) {}
 
-  // CREATE
   @ApiOperation({
     summary: "Create user",
-    description: "The user is added to the system through data."
+    description: "The user is added to the system through data.",
   })
   @ApiResponse({
     status: 201,
     description: "The user was successfully created.",
-    type: CreateUserDto
-  })
-  @ApiResponse({
-    status: 400,
-    description: "Error creating user"
-  })
-  @ApiResponse({
-    status: 409,
-    description: "Such user exists"
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Internal server error."
+    type: CreateUserDto,
   })
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
-  // FINDALL
+  @ApiOperation({
+    summary: "Create admin",
+    description: "The admin is added to the system through data.",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "The admin was successfully created.",
+    type: CreateUserDto,
+  })
+  @Post("admin")
+  createAdmin(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.createAdmin(createUserDto);
+  }
+
   @ApiOperation({
     summary: "Get all users",
-    description: "Get all users in the system."
+    description: "Get all users in the system.",
   })
   @ApiResponse({
     status: 200,
     description: "The users were successfully received.",
-    type: [User]
+    type: [User],
   })
-  @ApiResponse({
-    status: 400,
-    description: "Error while logging out users"
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Internal server error."
-  })
+  @UseGuards(AuthGuard)
   @Get()
-  findAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number
-  ) {
-    return this.usersService.findAll(page, limit);
+  findAll(@Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.usersService.findAll();
+    } else if (user.role === "jobseeker" || user.role === "employer") {
+      return this.usersService.findOne(user.id);
+    }
+    throw new ForbiddenException("Access denied");
   }
 
-  // FINDONE
+  @ApiOperation({
+    summary: "Get all users by pagination",
+    description: "Get all users by pagination in the system.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The users were successfully received.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("pagination")
+  findAllByPagination(
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.usersService.findAllByPagination(page, limit);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+
   @ApiOperation({
     summary: "Get user by id",
-    description: "Output user by id"
+    description: "Output user by id",
   })
   @ApiResponse({
     status: 200,
     description: "The user was successfully received.",
-    type: User
+    type: User,
   })
-  @ApiResponse({
-    status: 400,
-    description: "The user was not received."
-  })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized"
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Internal server error."
-  })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  @UseGuards(AuthGuard)
+  @Get(":id")
+  findOne(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin" || user.id === +id) {
+      return this.usersService.findOne(+id);
+    }
+    throw new ForbiddenException("Access denied");
   }
 
   // UPDATE
   @ApiOperation({
     summary: "Update user by id number",
-    description: "Admin updates user via this endpoint"
+    description: "Admin updates user via this endpoint",
   })
   @ApiResponse({
     status: 200,
     description: "The user was successfully updated.",
-    type: UpdateUserDto
+    type: UpdateUserDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: "error while changing user"
-  })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized"
-  })
-  @ApiResponse({
-    status: 409,
-    description: "Such user exists"
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Internal server error."
-  })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @UseGuards(AuthGuard)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.id === +id) {
+      return this.usersService.update(+id, updateUserDto);
+    }
+    throw new ForbiddenException("Access denied");
   }
 
   @ApiOperation({
     summary: "Delete user by id number",
-    description: "Admin deletes user via this endpoint"
+    description: "Admin deletes user via this endpoint",
   })
   @ApiResponse({
     status: 200,
-    description: "The user was successfully deleted."
+    description: "The user was successfully deleted.",
+  })
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.id === +id) {
+      return this.usersService.remove(+id);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({
+    summary: "Get user profile",
+    description: "Get user profile by id",
   })
   @ApiResponse({
-    status: 400,
-    description: "Error deleting user"
+    status: 200,
+    description: "The user profile was successfully received.",
   })
-  @ApiResponse({
-    status: 401,
-    description: "Unauthorized"
-  })
-  @ApiResponse({
-    status: 404,
-    description: "User not found"
-  })
-  @ApiResponse({
-    status: 500,
-    description: "Internal server error."
-  })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  userProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.usersService.userProfile(user.id);
   }
 }
