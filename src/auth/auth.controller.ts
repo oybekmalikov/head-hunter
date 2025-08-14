@@ -8,14 +8,16 @@ import {
   Res,
   UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import { CookieGetter } from "../common/decorators/decorators/cookie-getter.decorator";
-import { AuthGuard } from "../common/guards/auth.guard";
-import { CreateUserDto } from "../users/dto/create-user.dto";
 import { SignInDto } from "./dto/sign-in.dto";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { AuthGuard } from "../common/guards/auth.guard";
 import { UserAuthService } from "./user.auth.service";
 
+
+@ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: UserAuthService) {}

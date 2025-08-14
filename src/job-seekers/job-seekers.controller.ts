@@ -11,7 +11,7 @@ import {
   Req,
   UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { accessMatrix } from "../app.constants";
 import { AccessControlGuard } from "../common/guards/access-control.guard";
 import { AuthGuard } from "../common/guards/auth.guard";
@@ -19,6 +19,7 @@ import { CreateJobSeekerDto } from "./dto/create-job-seeker.dto";
 import { UpdateJobSeekerDto } from "./dto/update-job-seeker.dto";
 import { JobSeekersService } from "./job-seekers.service";
 
+@ApiTags("Job-seekers")
 @Controller("job-seekers")
 export class JobSeekersController {
   constructor(private readonly jobSeekersService: JobSeekersService) {}

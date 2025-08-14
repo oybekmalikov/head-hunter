@@ -5,7 +5,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { JobSeekerPosting } from "../../job-seeker-posting/entities/job-seeker-posting.entity";
 import { JobSeekerSkill } from "../../job-seeker-skills/entities/job-seeker-skill.entity";
 import { SkillsCategory } from "../../skills-category/entities/skills_category.entity";
 import { ApiProperty } from "@nestjs/swagger"

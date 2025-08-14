@@ -5,7 +5,9 @@ import { JobSeekersController } from "./job-seekers.controller";
 import { JobSeekersService } from "./job-seekers.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([JobSeeker])],
+  imports: [TypeOrmModule.forFeature([JobSeeker]),
+  
+  ],
   controllers: [JobSeekersController],
   providers: [JobSeekersService],
   exports: [JobSeekersService],
