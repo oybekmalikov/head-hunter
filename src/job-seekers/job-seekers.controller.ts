@@ -48,7 +48,9 @@ export class JobSeekersController {
   @UseGuards(new AccessControlGuard(accessMatrix, "jobSeeker"))
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Req() req: Request) {
+  findAll(@Req() req: Request
+
+  ) {
     const user = (req as any).user;
     if (user.role === "admin") {
       return this.jobSeekersService.findAll();

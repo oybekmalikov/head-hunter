@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -7,7 +6,6 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
-import { MailService } from "../mail/mail.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
@@ -16,7 +14,6 @@ import { User } from "./entities/user.entity";
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    private readonly mailerService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -26,22 +23,14 @@ export class UsersService {
       if (!userFoundByPhone) {
         const { password } = createUserDto;
         const hashedPassword = await bcrypt.hash(password, 7);
-        try {
-          await this.mailerService.sendOtp(createUserDto.email, "signup");
-          return {
-            data: await this.userRepo.save({
-              ...createUserDto,
-              password: hashedPassword,
-            }),
-            message:
-              "User created successfully!, please check your email for OTP",
-            success: true,
-          };
-        } catch (error) {
-          throw new BadRequestException(
-            "Failed to send welcome email: " + error,
-          );
-        }
+        return {
+          data: await this.userRepo.save({
+            ...createUserDto,
+            password: hashedPassword,
+          }),
+          message: "User created successfully!",
+          success: true,
+        };
       }
       throw new ConflictException("There is a user with this phone.");
     }

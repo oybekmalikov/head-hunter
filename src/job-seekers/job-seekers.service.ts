@@ -20,10 +20,8 @@ export class JobSeekersService {
     };
   }
 
-  async findAll(page: number, limit: number) {
-    const [data, total] = await this.jobSeekerRepo.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
+  async findAll() {
+    const data = await this.jobSeekerRepo.find({
       order: { id: "ASC" },
       relations: ["user"],
     })
@@ -36,7 +34,6 @@ export class JobSeekersService {
     return {
       message: "Job Seekers retrieved successfully!",
       data,
-      total,
       success: true,
     };
   }
