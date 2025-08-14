@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query } from '@nestjs/common';
 import { EmployersService } from './employers.service';
 import { CreateEmployerDto } from './dto/create-employer.dto';
 import { UpdateEmployerDto } from './dto/update-employer.dto';
@@ -20,6 +20,7 @@ export class EmployersController {
   async create(@Body() createEmployerDto: CreateEmployerDto) {
     return this.employersService.create(createEmployerDto);
   }
+
   @ApiOperation({
     summary: 'Get all employers',
     description: 'Get all employers in the system.',
@@ -29,9 +30,13 @@ export class EmployersController {
     description: 'All employers have been successfully received.',
   })
   @Get()
-  findAll() {
-    return this.employersService.findAll();
+  findAll(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number
+  ) {
+    return this.employersService.findAll(page, limit);
   }
+
   @ApiOperation({
     summary: 'Get employer by id',
     description: 'Get employer by id in the system.',
@@ -44,6 +49,7 @@ export class EmployersController {
   findOne(@Param('id') id: string) {
     return this.employersService.findOne(+id);
   }
+  
   @ApiOperation({
     summary: 'Update employer by id',
     description: 'Update employer by id in the system.',
@@ -56,6 +62,7 @@ export class EmployersController {
   update(@Param('id') id: string, @Body() updateEmployerDto: UpdateEmployerDto) {
     return this.employersService.update(+id, updateEmployerDto);
   }
+  
   @ApiOperation({
     summary: 'Delete employer by id',
     description: 'Delete employer by id in the system.',

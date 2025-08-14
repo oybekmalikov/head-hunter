@@ -4,8 +4,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { CreateJobSeekerDto } from "./dto/create-job-seeker.dto";
@@ -38,8 +40,11 @@ export class JobSeekersController {
     description: "Return all job seekers",
   })
   @Get()
-  findAll() {
-    return this.jobSeekersService.findAll();
+  findAll(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number
+  ) {
+    return this.jobSeekersService.findAll(page, limit);
   }
 
   @ApiOperation({
