@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { JobSeekersService } from "../job-seekers/job-seekers.service";
@@ -11,8 +11,10 @@ export class JobSeekerPostingService {
   constructor(
     @InjectRepository(JobSeekerPosting)
     private jobSeekerPostingRepo: Repository<JobSeekerPosting>,
-    private jobSeekerService: JobSeekersService,
-  ) {}
+   @Inject(forwardRef(() => JobSeekersService))
+  private jobSeekerService: JobSeekersService,
+  ) {
+  }
 
   async create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
     const jobSeekerResp = await this.jobSeekerService.findOne(

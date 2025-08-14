@@ -10,8 +10,8 @@ import {
   Req,
   UseGuards,
 } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "../common/guards/auth.guard";
 import { SelfGuard } from "../common/guards/self.guard";
 import { CreateJobSeekerPostingDto } from "./dto/create-job-seeker-posting.dto";
 import { UpdateJobSeekerPostingDto } from "./dto/update-job-seeker-posting.dto";
