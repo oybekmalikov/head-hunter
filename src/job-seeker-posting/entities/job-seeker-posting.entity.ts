@@ -28,11 +28,11 @@ export class JobSeekerPosting {
   city: string;
 
   @ApiProperty({
-    example: "1000$",
+    example: 3000000,
     description: "Salary of job seeker",
   })
   @Column()
-  salary: string;
+  salary: number;
 
   @ApiProperty({
     example: "2 month",

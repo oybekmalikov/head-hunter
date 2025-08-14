@@ -10,7 +10,7 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     RedisModule,
-    forwardRef(() => UsersModule), // Tsiklik bog'liqlikni oldini olish
+    forwardRef(() => UsersModule),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

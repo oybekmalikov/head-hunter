@@ -35,6 +35,27 @@ export class JobSeekersService {
     };
   }
 
+  async findAllByPagination(page: number, limit: number) {
+    const [data, total] = await this.jobSeekerRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+      relations: ["user"],
+    })
+    if (!data || data.length === 0) {
+      return {
+        message: "Job Seekers not found!",
+        success: false,
+      };
+    }
+    return {
+      message: "Job Seekers retrieved successfully!",
+      data,
+      total,
+      success: true,
+    };
+  }
+
   async findOne(id: number) {
     const data = await this.jobSeekerRepo.findOne({
       where: { id },

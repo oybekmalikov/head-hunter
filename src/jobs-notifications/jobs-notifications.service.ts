@@ -47,7 +47,7 @@ export class JobsNotificationsService {
 		});
 		if (!jobNotification) {
 			return {
-				message: `Job notification with id ${id} not found`,
+				message: `Job notification not found with id ${id}`,
 				data: null,
 				success: false,
 			};

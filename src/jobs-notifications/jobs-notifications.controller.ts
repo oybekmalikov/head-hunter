@@ -6,8 +6,10 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AuthGuard } from "../common/guards/auth.guard";
 import { CreateJobsNotificationDto } from "./dto/create-jobs-notification.dto";
 import { UpdateJobsNotificationDto } from "./dto/update-jobs-notification.dto";
 import { JobsNotificationsService } from "./jobs-notifications.service";
@@ -26,6 +28,7 @@ export class JobsNotificationsController {
     status: 201,
     description: "Job notification created successfully.",
   })
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createJobsNotificationDto: CreateJobsNotificationDto) {
     return this.jobsNotificationsService.create(createJobsNotificationDto);
@@ -39,6 +42,7 @@ export class JobsNotificationsController {
     status: 200,
     description: "Job notifications retrieved successfully.",
   })
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.jobsNotificationsService.findAll();
@@ -52,6 +56,7 @@ export class JobsNotificationsController {
     status: 200,
     description: "Job notification retrieved successfully.",
   })
+  @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.jobsNotificationsService.findOne(+id);
@@ -66,6 +71,7 @@ export class JobsNotificationsController {
     status: 200,
     description: "Job notification updated successfully.",
   })
+  @UseGuards(AuthGuard)
   @Patch(":id")
   update(
     @Param("id") id: string,
@@ -82,6 +88,7 @@ export class JobsNotificationsController {
     status: 200,
     description: "Job notification removed successfully.",
   })
+  @UseGuards(AuthGuard)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.jobsNotificationsService.remove(+id);
@@ -96,6 +103,7 @@ export class JobsNotificationsController {
     status: 200,
     description: "Job notifications for the job seeker retrieved successfully.",
   })
+  @UseGuards(AuthGuard)
   @Get("job-seeker/:jobSeekerId")
   findByJobSeekerId(@Param("jobSeekerId") jobSeekerId: number) {
     return this.jobsNotificationsService.findByJobSeekerId(jobSeekerId);

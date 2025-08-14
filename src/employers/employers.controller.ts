@@ -1,71 +1,135 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { EmployersService } from './employers.service';
-import { CreateEmployerDto } from './dto/create-employer.dto';
-import { UpdateEmployerDto } from './dto/update-employer.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Employer } from './entities/employer.entity';
+import {
+  Body,
+  Controller,
+  Delete,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from "@nestjs/common";
+import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { accessMatrix } from "../app.constants";
+import { AccessControlGuard } from "../common/guards/access-control.guard";
+import { AuthGuard } from "../common/guards/auth.guard";
+import { SelfGuard } from "../common/guards/self.guard";
+import { CreateEmployerDto } from "./dto/create-employer.dto";
+import { UpdateEmployerDto } from "./dto/update-employer.dto";
+import { EmployersService } from "./employers.service";
 
-@Controller('employers')
+@Controller("employers")
 export class EmployersController {
-  constructor(private readonly employersService: EmployersService) { }
+  constructor(private readonly employersService: EmployersService) {}
   @ApiOperation({
-    summary: 'Create Employer',
-    description: 'The employer is added to the system through data.',
+    summary: "Create Employer",
+    description: "The employer is added to the system through data.",
   })
-  @ApiResponse({ 
-    status: 201, 
-    description: 'The employer has been successfully added to the system.',
+  @ApiResponse({
+    status: 201,
+    description: "The employer has been successfully added to the system.",
   })
+  @UseGuards(new AccessControlGuard(accessMatrix, "employers"))
+  @UseGuards(AuthGuard)
   @Post()
   async create(@Body() createEmployerDto: CreateEmployerDto) {
     return this.employersService.create(createEmployerDto);
   }
   @ApiOperation({
-    summary: 'Get all employers',
-    description: 'Get all employers in the system.',
+    summary: "Get all employers",
+    description: "Get all employers in the system.",
   })
   @ApiResponse({
     status: 200,
-    description: 'All employers have been successfully received.',
+    description: "All employers have been successfully received.",
   })
+  @UseGuards(new AccessControlGuard(accessMatrix, "employers"))
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.employersService.findAll();
+  findAll(@Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.employersService.findAll();
+    }
+    throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({
+    summary: "Get all employers by pagination",
+    description: "Get all employers by pagination in the system.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "All employers have been successfully received.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "employers"))
+  @UseGuards(AuthGuard)
+  @Get("pagination")
+  findAllByPagination(
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "admin") {
+      return this.employersService.findAllByPagination(page, limit);
+    }
+    throw new ForbiddenException("Access denied");
   }
   @ApiOperation({
-    summary: 'Get employer by id',
-    description: 'Get employer by id in the system.',
+    summary: "Get employer by id",
+    description: "Get employer by id in the system.",
   })
   @ApiResponse({
     status: 200,
-    description: 'The employer has been successfully received.',
+    description: "The employer has been successfully received.",
   })
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @UseGuards(
+    new AccessControlGuard(accessMatrix, "employers"),
+    new SelfGuard("id", "id"),
+  )
+  @UseGuards(AuthGuard)
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.employersService.findOne(+id);
   }
   @ApiOperation({
-    summary: 'Update employer by id',
-    description: 'Update employer by id in the system.',
+    summary: "Update employer by id",
+    description: "Update employer by id in the system.",
   })
   @ApiResponse({
     status: 200,
-    description: 'The employer has been successfully updated.',
+    description: "The employer has been successfully updated.",
   })
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEmployerDto: UpdateEmployerDto) {
+  @UseGuards(
+    new AccessControlGuard(accessMatrix, "employers"),
+    new SelfGuard("id", "id"),
+  )
+  @UseGuards(AuthGuard)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateEmployerDto: UpdateEmployerDto,
+  ) {
     return this.employersService.update(+id, updateEmployerDto);
   }
   @ApiOperation({
-    summary: 'Delete employer by id',
-    description: 'Delete employer by id in the system.',
+    summary: "Delete employer by id",
+    description: "Delete employer by id in the system.",
   })
   @ApiResponse({
     status: 200,
-    description: 'The employer has been successfully deleted.',
+    description: "The employer has been successfully deleted.",
   })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UseGuards(
+    new AccessControlGuard(accessMatrix, "employers"),
+    new SelfGuard("id", "id"),
+  )
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.employersService.remove(+id);
   }
 }

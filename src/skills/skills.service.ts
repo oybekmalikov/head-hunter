@@ -42,6 +42,7 @@ export class SkillsService {
   async findAll() {
     const all = await this.skillRepo.find({
       relations: ["category"],
+      order: { id: "ASC" },
     });
 
     if (!all || all.length === 0) {
@@ -55,6 +56,24 @@ export class SkillsService {
     };
   }
 
+  async findAllByPagination(page: number, limit: number) {
+    const [data, total] = await this.skillRepo.findAndCount({
+      relations: ["category"],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+
+    if (!data || data.length === 0) {
+      return { message: "No skills found.", success: false };
+    }
+
+    return {
+      message: "List of all skills",
+      data:{ data, total, page, limit },
+      success: true,
+    };
+  }
   async findOne(id: number) {
     const one = await this.skillRepo.findOne({
       where: { id },
@@ -98,19 +117,66 @@ export class SkillsService {
   }
 
   async remove(id: number) {
-    const del = await this.skillRepo.delete({ id });
-
+    let del: any;
+    try {
+      del = await this.skillRepo.delete({ id });
+    } catch (error) {
+      return {
+        message: `Cannot delete skill with ID ${id}. It has associated job postings.`,
+        success: false,
+      };
+    }
     if (del.affected === 0) {
       return {
         message: `Skill with ID ${id} not found. Deletion failed.`,
         success: false,
       };
     }
-
     return {
       message: `Skill with ID ${id} was successfully deleted.`,
       data: { affected: del.affected },
       success: true,
+    };
+  }
+
+  async findAllByName(name: string) {
+    const skills = await this.skillRepo
+      .createQueryBuilder("skill")
+      .where("skill.name ILIKE :name", { name: `%${name}%` })
+      .leftJoinAndSelect("skill.category", "category")
+      .getMany();
+
+    if (!skills.length) {
+      return {
+        success: false,
+        message: "Skill not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "Skills found",
+      data: skills,
+    };
+  }
+
+  async findAllByCategory(categoryId: number) {
+    const skills = await this.skillRepo.find({
+      where: { category: { id: categoryId } },
+      relations: ["category"],
+    });
+
+    if (!skills || skills.length === 0) {
+      return {
+        success: false,
+        message: `No skills found for category ID ${categoryId}.`,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Skills found by category",
+      data: skills,
     };
   }
 }

@@ -2,12 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiProperty, ApiResponse } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { AuthGuard } from "../common/guards/auth.guard";
+import { SelfGuard } from "../common/guards/self.guard";
 import { CreateJobSeekerSkillDto } from "./dto/create-job-seeker-skill.dto";
 import { UpdateJobSeekerSkillDto } from "./dto/update-job-seeker-skill.dto";
 import { JobSeekerSkillsService } from "./job-seeker-skills.service";
@@ -18,21 +23,50 @@ export class JobSeekerSkillsController {
     private readonly jobSeekerSkillsService: JobSeekerSkillsService,
   ) {}
 
-  @Post()
-  @ApiOperation({ summary: "Create a new job seeker skill", description: "Create a new job seeker skill" })
-  @ApiResponse({
-    status: 201,
-    description: "The record has been successfully created.",
+  @ApiOperation({
+    summary: "Get all job seeker skills",
+    description: "Get all job seeker skills",
   })
-  create(@Body() createJobSeekerSkillDto: CreateJobSeekerSkillDto) {
-    return this.jobSeekerSkillsService.create(createJobSeekerSkillDto);
-  }
-
-  @ApiOperation({summary:"Get all job seeker skills", description:"Get all job seeker skills"})
   @ApiResponse({
     status: 200,
     description: "The list of all job seeker skills.",
   })
+  @UseGuards(AuthGuard)
+  @Get("job-seeker/:id")
+  getAllSkillsByJobSeekerId(@Param("id") id: string) {
+    return this.jobSeekerSkillsService.getAllSkillsByJobSeekerId(+id);
+  }
+
+  @ApiOperation({
+    summary: "Create a new job seeker skill",
+    description: "Create a new job seeker skill",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "The record has been successfully created.",
+  })
+  @UseGuards(AuthGuard)
+  @Post()
+  create(
+    @Body() createJobSeekerSkillDto: CreateJobSeekerSkillDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "jobseeker") {
+      return this.jobSeekerSkillsService.create(createJobSeekerSkillDto);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({
+    summary: "Get all job seeker skills",
+    description: "Get all job seeker skills",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The list of all job seeker skills.",
+  })
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.jobSeekerSkillsService.findAll();
@@ -46,6 +80,7 @@ export class JobSeekerSkillsController {
     status: 200,
     description: "The job seeker skill with the given id.",
   })
+  @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.jobSeekerSkillsService.findOne(+id);
@@ -53,30 +88,44 @@ export class JobSeekerSkillsController {
 
   @ApiOperation({
     summary: "Update a job seeker skill",
-    description: "Update an existing job seeker skill using its unique identifier.",
+    description:
+      "Update an existing job seeker skill using its unique identifier.",
   })
   @ApiResponse({
     status: 200,
     description: "The job seeker skill has been successfully updated.",
   })
+  @UseGuards(new SelfGuard("id", "id"))
+  @UseGuards(AuthGuard)
   @Patch(":id")
   update(
     @Param("id") id: string,
     @Body() updateJobSeekerSkillDto: UpdateJobSeekerSkillDto,
+    @Req() req: Request,
   ) {
-    return this.jobSeekerSkillsService.update(+id, updateJobSeekerSkillDto);
+    const user = (req as any).user;
+    if (user.role === "jobseeker" || user.role === "admin") {
+      return this.jobSeekerSkillsService.update(+id, updateJobSeekerSkillDto);
+    }
+    throw new ForbiddenException("Access denied");
   }
 
   @ApiOperation({
-    summary:"Delete job seeker skills",
-    description:"Delete a job seeker skill using its unique identifier.",
+    summary: "Delete job seeker skills",
+    description: "Delete a job seeker skill using its unique identifier.",
   })
   @ApiResponse({
     status: 200,
     description: "The job seeker skill has been successfully deleted.",
   })
+  @UseGuards(new SelfGuard("id", "id"))
+  @UseGuards(AuthGuard)
   @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.jobSeekerSkillsService.remove(+id);
+  remove(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "jobseeker" || user.role === "admin") {
+      return this.jobSeekerSkillsService.remove(+id);
+    }
+    throw new ForbiddenException("Access denied");
   }
 }

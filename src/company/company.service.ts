@@ -79,4 +79,23 @@ export class CompanyService {
       success: true,
     };
   }
+
+  async getCompanyByName(name: string) {
+    const nameFormatted = name.charAt(0).toUpperCase()+name.slice(1);
+    const company = await this.companyRepo
+      .createQueryBuilder("company")
+      .where("company.name LIKE :name", { name: `%${nameFormatted}%` })
+      .getOne();
+    if (!company) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Company retrieved successfully",
+      data: company,
+      success: true,
+    };
+  }
 }

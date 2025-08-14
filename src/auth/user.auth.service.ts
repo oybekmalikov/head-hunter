@@ -48,7 +48,11 @@ export class UserAuthService {
     if (user) {
       throw new BadRequestException("Email already exists!");
     }
-    return this.usersService.create(signInDto);
+    return {
+      data: await this.usersService.create(signInDto),
+      message: "Please check your email for OTP",
+      success: true,
+    };
   }
 
   async signIn(signInDto: SignInDto, res: Response) {
@@ -131,11 +135,7 @@ export class UserAuthService {
     }
     const isOtpValid = await this.mailerService.verifyOtp(email, userOtp, type);
     if (!isOtpValid) {
-      return {
-        message: "OTP is invalid or expired!",
-        data: { email: user.email, type: type, succesfully: false },
-        success: false,
-      };
+      throw new BadRequestException("Invalid OTP");
     }
     if (type === "signup") {
       await this.usersService.activate(user.id);
@@ -144,6 +144,44 @@ export class UserAuthService {
       message: "OTP verified successfully!",
       data: { email: user.email, type: type, succesfully: true },
       success: true,
+    };
+  }
+
+  async forgetPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    try {
+      await this.mailerService.sendOtp(email, "forget-password");
+      return {
+        message: "Please check your email for OTP",
+        data: { email: user.email, type: "forget-password", succesfully: true },
+        success: true,
+      };
+    } catch (error) {
+      throw new BadRequestException("Failed to send OTP");
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    password: string,
+    confirmPassword: string,
+  ) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        "Password and confirm password do not match",
+      );
+    }
+    const response = await this.usersService.updatePassword(user.id, password);
+    return {
+      message: response.message,
+      success: response.success,
     };
   }
 }

@@ -173,8 +173,15 @@ export class JobPosting {
     example: 4.5,
     description: "User rating for this job posting",
   })
-  @Column({ default: 0 })
+  @Column({ default: 0 , type: "float"})
   userMark: number;
+
+  @ApiProperty({
+    example: 50,
+    description: "How many users have rated this job posting",
+  })
+  @Column({ default: 0 })
+  userMarkCount: number;
 
   // Relations
   @ManyToOne(() => Employer, (employer) => employer.jobPostings)

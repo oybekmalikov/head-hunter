@@ -8,7 +8,7 @@ export class CreateSkillDto {
   })
   @IsNotEmpty({ message: 'Skill name is required.' })
   @IsString({ message: 'Skill name must be a string.' })
-  @Length(3, 55, {
+  @Length(0, 55, {
     message: 'Skill name must be between 3 and 55 characters.',
   })
   name: string;
