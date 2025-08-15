@@ -24,6 +24,21 @@ export class JobSeekersController {
   constructor(private readonly jobSeekersService: JobSeekersService) {}
 
   @ApiOperation({
+    summary: "Get job seeker profile",
+    description: "Get job seeker profile by id",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The job seeker profile was successfully received.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  userProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.jobSeekersService.userProfile(user.id);
+  }
+
+  @ApiOperation({
     summary: "Create job seeker",
     description: "Create job seeker",
   })
@@ -129,20 +144,5 @@ export class JobSeekersController {
       return this.jobSeekersService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Get job seeker profile",
-    description: "Get job seeker profile by id",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "The job seeker profile was successfully received.",
-  })
-  @UseGuards(AuthGuard)
-  @Get("profile")
-  userProfile(@Req() req: Request) {
-    const user = (req as any).user;
-    return this.jobSeekersService.userProfile(user.id);
   }
 }

@@ -47,8 +47,11 @@ export class UsersController {
     description: "The admin was successfully created.",
     type: CreateUserDto,
   })
+  @UseGuards(AuthGuard)
   @Post("admin")
-  createAdmin(@Body() createUserDto: CreateUserDto) {
+  createAdmin(@Body() createUserDto: CreateUserDto, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role !== "superadmin") throw new ForbiddenException("Access denied");
     return this.usersService.createAdmin(createUserDto);
   }
 

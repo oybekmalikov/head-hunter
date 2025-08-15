@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -6,6 +7,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
+import { MailService } from "../mail/mail.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { User } from "./entities/user.entity";
@@ -14,15 +16,20 @@ import { User } from "./entities/user.entity";
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
+    private readonly mailService: MailService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    if (createUserDto.role) {
+      throw new BadRequestException("Role cannot be assigned");
+    }
     const userFoundByEmail = await this.findByEmail(createUserDto.email);
     if (!userFoundByEmail) {
       const userFoundByPhone = await this.findByPhone(createUserDto.phone);
       if (!userFoundByPhone) {
         const { password } = createUserDto;
         const hashedPassword = await bcrypt.hash(password, 7);
+        await this.mailService.sendOtp(createUserDto.email, "signup");
         return {
           data: await this.userRepo.save({
             ...createUserDto,

@@ -3,15 +3,15 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from "bcrypt";
-import { Response } from "express";
-import { MailService } from "../mail/mail.service";
-import { CreateUserDto } from "../users/dto/create-user.dto";
-import { User } from "../users/entities/user.entity";
-import { UsersService } from "../users/users.service";
-import { SignInDto } from "./dto/sign-in.dto";
+} from "@nestjs/common"
+import { JwtService } from "@nestjs/jwt"
+import * as bcrypt from "bcrypt"
+import { Response } from "express"
+import { MailService } from "../mail/mail.service"
+import { CreateUserDto } from "../users/dto/create-user.dto"
+import { User } from "../users/entities/user.entity"
+import { UsersService } from "../users/users.service"
+import { SignInDto } from "./dto/sign-in.dto"
 
 @Injectable()
 export class UserAuthService {
@@ -181,6 +181,36 @@ export class UserAuthService {
     const response = await this.usersService.updatePassword(user.id, password);
     return {
       message: response.message,
+      success: response.success,
+    };
+  }
+
+  async updatePassword(
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+    userId: number,
+  ) {
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const isValidPassword = await bcrypt.compare(
+      oldPassword,
+      user.data!.password,
+    );
+    if (!isValidPassword) {
+      throw new BadRequestException("Old password is incorrect");
+    }
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException(
+        "New password and confirm password do not match",
+      );
+    }
+    const response = await this.usersService.updatePassword(userId, newPassword);
+    return {
+      message: response.message,
+      data: {userId},
       success: response.success,
     };
   }

@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { RolesType } from "../../app.constants";
 import { Chat } from "../../chat/entities/chat.entity";
 import { Employer } from "../../employers/entities/employer.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
@@ -54,7 +53,7 @@ export class User {
     description: "This user's role",
   })
   @Column({ default: "user" })
-  role: RolesType;
+  role: string;
 
   @ApiProperty({
     example: "/src/something/avatar.jpg",

@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { UsersService } from "../users/users.service";
 import { CreateEmployerDto } from "./dto/create-employer.dto";
 import { UpdateEmployerDto } from "./dto/update-employer.dto";
 import { Employer } from "./entities/employer.entity";
@@ -14,6 +15,7 @@ export class EmployersService {
   constructor(
     @InjectRepository(Employer)
     private readonly employerRepo: Repository<Employer>,
+    private readonly userService: UsersService,
   ) {}
 
   async create(createEmployerDto: CreateEmployerDto) {
@@ -24,6 +26,9 @@ export class EmployersService {
     if (employer) {
       throw new ConflictException("Employer already exists");
     }
+    await this.userService.update(createEmployerDto.userId, {
+      role: "employer",
+    });
     return {
       message: "Employer created successfully!",
       employer: await this.employerRepo.save(createEmployerDto),
