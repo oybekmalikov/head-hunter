@@ -68,7 +68,7 @@ export class UsersController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.usersService.findAll();
     } else if (user.role === "jobseeker" || user.role === "employer") {
       return this.usersService.findOne(user.id);
@@ -92,7 +92,7 @@ export class UsersController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.usersService.findAllByPagination(page, limit);
     }
     throw new ForbiddenException("Access denied");
@@ -111,7 +111,7 @@ export class UsersController {
   @Get(":id")
   findOne(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin" || user.id === +id) {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.usersService.findOne(+id);
     }
     throw new ForbiddenException("Access denied");

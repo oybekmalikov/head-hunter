@@ -123,7 +123,7 @@ export class SavedJobsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker" || user.role === "admin") {
+    if (user.role === "jobseeker" || user.role === "admin"||user.role === "superadmin") {
       return this.savedJobsService.findByJobSeekerId(+jobSeekerId);
     }
     throw new ForbiddenException("Access denied");

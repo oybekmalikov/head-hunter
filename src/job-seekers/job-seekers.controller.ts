@@ -65,7 +65,7 @@ export class JobSeekersController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin" ) {
       return this.jobSeekersService.findAll();
     }
     throw new ForbiddenException("Access denied");
@@ -121,7 +121,7 @@ export class JobSeekersController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker") {
+    if (user.role === "jobseeker"||user.role === "superadmin") {
       return this.jobSeekersService.update(+id, updateJobSeekerDto);
     }
     throw new ForbiddenException("Access denied");
@@ -140,7 +140,7 @@ export class JobSeekersController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobSeekersService.remove(+id);
     }
     throw new ForbiddenException("Access denied");

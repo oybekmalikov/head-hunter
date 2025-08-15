@@ -22,6 +22,22 @@ import { WorkExperienceService } from "./work-experience.service";
 @Controller("work-experience")
 export class WorkExperienceController {
   constructor(private readonly workExperienceService: WorkExperienceService) {}
+  
+  @ApiOperation({
+    summary: "Get work experiences by job seeker ID",
+    description:
+      "This endpoint retrieves all work experiences associated with a specific job seeker ID.",
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Returns an array of work experiences for the specified job seeker.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("job-seeker/:jobSeekerId")
+  findByJobSeekerId(@Param("jobSeekerId") jobSeekerId: string) {
+    return this.workExperienceService.findByJobSeekerId(+jobSeekerId);
+  }
 
   @ApiOperation({
     summary: "Create a new work experience",
@@ -39,7 +55,7 @@ export class WorkExperienceController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker") {
+    if (user.role === "jobseeker"||user.role === "superadmin") {
       return this.workExperienceService.create(createWorkExperienceDto);
     }
     throw new ForbiddenException("Access denied");
@@ -93,7 +109,7 @@ export class WorkExperienceController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker") {
+    if (user.role === "jobseeker"||user.role === "superadmin") {
       return this.workExperienceService.update(+id, updateWorkExperienceDto);
     }
     throw new ForbiddenException("Access denied");
@@ -113,25 +129,10 @@ export class WorkExperienceController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "jobseeker") {
+    if (user.role === "jobseeker"||user.role === "superadmin") {
       return this.workExperienceService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
   }
 
-  @ApiOperation({
-    summary: "Get work experiences by job seeker ID",
-    description:
-      "This endpoint retrieves all work experiences associated with a specific job seeker ID.",
-  })
-  @ApiResponse({
-    status: 200,
-    description:
-      "Returns an array of work experiences for the specified job seeker.",
-  })
-	@UseGuards(AuthGuard)
-  @Get("job-seeker/:jobSeekerId")
-  findByJobSeekerId(@Param("jobSeekerId") jobSeekerId: string) {
-    return this.workExperienceService.findByJobSeekerId(+jobSeekerId);
-  }
 }
