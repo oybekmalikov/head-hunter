@@ -88,6 +88,8 @@ export class UserAuthService {
     return {
       message: "User logged in successfully!",
       accessToken,
+      userId: user.id,
+      role: user.role,
     };
   }
 
