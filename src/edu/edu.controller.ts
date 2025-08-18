@@ -28,7 +28,7 @@ export class EduController {
     description: "All educational information of jobseeker",
   })
   @UseGuards(new AccessControlGuard(accessMatrix, "edu"))
-  @UseGuards(AuthGuard) 
+  @UseGuards(AuthGuard)
   async getAllEducationByJobSeekerId(
     @Param("jobSeekerId") jobSeekerId: number,
   ) {

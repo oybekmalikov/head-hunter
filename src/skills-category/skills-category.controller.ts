@@ -43,13 +43,14 @@ export class SkillsCategoryController {
     description: "The category has been successfully created.",
   })
   @UseGuards(new AccessControlGuard(accessMatrix, "skillsCategory"))
+  @UseGuards(AuthGuard)
   @Post()
   create(
     @Body() createSkillsCategoryDto: CreateSkillsCategoryDto,
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.skillsCategoryService.create(createSkillsCategoryDto);
     }
     throw new ForbiddenException("Access denied");
@@ -108,7 +109,7 @@ export class SkillsCategoryController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.skillsCategoryService.update(+id, updateSkillsCategoryDto);
     }
     throw new ForbiddenException("Access denied");
@@ -123,7 +124,7 @@ export class SkillsCategoryController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.skillsCategoryService.remove(+id);
     }
     throw new ForbiddenException("Access denied");

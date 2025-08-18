@@ -183,7 +183,8 @@ export class JobPostingsService {
         success: false,
       };
     }
-
+    one.viewCount += 1;
+    await this.jobRepo.save(one);
     return {
       message: "Job posting details",
       data: one,
@@ -440,6 +441,7 @@ export class JobPostingsService {
     publishedAtFrom?: string;
     publishedAtTo?: string;
     applicationDeadlineAfter?: string;
+    skills?: string;
     page?: number;
     limit?: number;
   }) {
@@ -490,6 +492,12 @@ export class JobPostingsService {
       query.andWhere("job.applicationDeadline >= :applicationDeadlineAfter", {
         applicationDeadlineAfter: filters.applicationDeadlineAfter,
       });
+    if (filters.skills) {
+      const skills = filters.skills;
+      query.andWhere("job.requiredSkills ILIKE :skills", {
+        skills: `%${skills}%`,
+      });
+    }
     const page = filters.page || 1;
     const limit = filters.limit || 10;
     query.skip((page - 1) * limit).take(limit);
@@ -568,5 +576,31 @@ export class JobPostingsService {
       data: { jobId: id, mark },
       success: true,
     };
+  }
+
+  async findJobByRequiredSkills(skills: string[]) {
+    const jobs = await this.jobRepo.find();
+
+    for (const job of jobs) {
+      let suitableCount = 0;
+      const jobSkills = job.requiredSkills.split(", ");
+      jobSkills.forEach((skill) => {
+        if (skills.includes(skill)) {
+          suitableCount++;
+        }
+      });
+      if (suitableCount / jobSkills.length > 0.5) {
+        return {
+          success: true,
+          message: "Jobs found",
+          data: {
+            ...job,
+            suitablePercentage:
+              Number((suitableCount / jobSkills.length).toFixed(2)) * 100,
+          },
+        };
+      }
+    }
+    return { success: false, message: "No jobs found" };
   }
 }

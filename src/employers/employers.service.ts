@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+import { Notification } from "../notifications/entities/notification.entity";
 import { UsersService } from "../users/users.service";
 import { CreateEmployerDto } from "./dto/create-employer.dto";
 import { UpdateEmployerDto } from "./dto/update-employer.dto";
@@ -16,23 +17,48 @@ export class EmployersService {
     @InjectRepository(Employer)
     private readonly employerRepo: Repository<Employer>,
     private readonly userService: UsersService,
+    @InjectRepository(Notification)
+    private readonly notificationRepo: Repository<Notification>,
   ) {}
 
   async create(createEmployerDto: CreateEmployerDto) {
-    const employer = await this.findByRelation(
+    const isEmployer = await this.findByRelation(
       createEmployerDto.userId,
       createEmployerDto.companyId,
     );
-    if (employer) {
+    if (isEmployer) {
       throw new ConflictException("Employer already exists");
     }
-    await this.userService.update(createEmployerDto.userId, {
+    const employer = await this.employerRepo.save(createEmployerDto);
+    const thisEmployer = await this.employerRepo.findOne({
+      where: { id: employer.id },
+      relations: ["user", "company"],
+    });
+    if (!thisEmployer) {
+      throw new NotFoundException("Employer not found");
+    }
+    await this.userService.update(employer.userId, {
       role: "employer",
     });
+    const user = await this.userService.findByRole("superadmin");
+    await this.notificationRepo.save({
+      title: "New employer created",
+      message: `A new employer request for verification\n
+      Employer name: ${thisEmployer.user.firstName} ${thisEmployer.user.lastName}\n
+      Employer email: ${thisEmployer.user.email}\n
+      Employer phone: ${thisEmployer.user.phone}\n
+      Employer company: ${thisEmployer.company.name}\n
+      Employer position: ${thisEmployer.position}\n
+      Employer department: ${thisEmployer.department}\n
+      
+      To verify the employer, please <a href="${process.env.API_HOST}/employers/verify/${thisEmployer.id}" target="_blank" rel="noopener noreferrer">click here</a>.
+      `,
+      userId: user[0]?.id,
+    });
     return {
-      message: "Employer created successfully!",
-      employer: await this.employerRepo.save(createEmployerDto),
-      status: 200,
+      message: "Application sent successfully! Please wait for admin approval.",
+      employer: thisEmployer,
+      success: true,
     };
   }
 
@@ -150,5 +176,31 @@ export class EmployersService {
       data: user,
       success: true,
     };
+  }
+  async verifyEmployer(id: number) {
+    const employer = await this.employerRepo.findOne({ where: { id } });
+    if (!employer) {
+      throw new NotFoundException("Employer not found");
+    }
+    employer.isVerifiedByAdmin = true;
+    await this.notificationRepo.save({
+      title: "Employer verified",
+      message: "Your employer has been verified by admin",
+      userId: employer.userId,
+    });
+    return await this.employerRepo.save(employer);
+  }
+  async unverifyEmployer(id: number) {
+    const employer = await this.employerRepo.findOne({ where: { id } });
+    if (!employer) {
+      throw new NotFoundException("Employer not found");
+    }
+    employer.isVerifiedByAdmin = false;
+    await this.notificationRepo.save({
+      title: "Employer unverified",
+      message: "Your employer has been unverified by admin",
+      userId: employer.userId,
+    });
+    return await this.employerRepo.save(employer);
   }
 }

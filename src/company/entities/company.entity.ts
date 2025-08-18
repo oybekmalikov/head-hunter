@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Employer } from "../../employers/entities/employer.entity";
 import { JobPosting } from "../../job-postings/entities/job-posting.entity";
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity("companies")
 export class Company {
@@ -16,7 +16,7 @@ export class Company {
     description: "Name of the company",
     example: "Tech Innovations Inc.",
   })
-  @Column({length:100})
+  @Column({ length: 100 })
   name: string;
 
   @ApiProperty({
@@ -88,7 +88,7 @@ export class Company {
   })
   @Column({ default: false })
   isVerified: boolean;
-  
+
   // Relations
   @OneToMany(() => Employer, (employer) => employer.company)
   employers: Employer[];

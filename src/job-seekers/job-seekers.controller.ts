@@ -2,26 +2,37 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   ForbiddenException,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ApiConsumes, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ResumeUploadService } from "src/common/services/resume-upload.service";
 import { accessMatrix } from "../app.constants";
 import { AccessControlGuard } from "../common/guards/access-control.guard";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { CreateJobSeekerDto } from "./dto/create-job-seeker.dto";
 import { UpdateJobSeekerDto } from "./dto/update-job-seeker.dto";
+import { UploadResumeDto } from "./dto/upload-resume.dto";
 import { JobSeekersService } from "./job-seekers.service";
 
 @Controller("job-seekers")
 export class JobSeekersController {
-  constructor(private readonly jobSeekersService: JobSeekersService) {}
+  constructor(
+    private readonly jobSeekersService: JobSeekersService,
+    private readonly resumeUploadService: ResumeUploadService,
+  ) {}
 
   @ApiOperation({
     summary: "Get job seeker profile",
@@ -65,7 +76,7 @@ export class JobSeekersController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin" ) {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.jobSeekersService.findAll();
     }
     throw new ForbiddenException("Access denied");
@@ -121,7 +132,7 @@ export class JobSeekersController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker"||user.role === "superadmin") {
+    if (user.role === "jobseeker" || user.role === "superadmin") {
       return this.jobSeekersService.update(+id, updateJobSeekerDto);
     }
     throw new ForbiddenException("Access denied");
@@ -140,9 +151,65 @@ export class JobSeekersController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.jobSeekersService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
+  }
+
+  @ApiOperation({
+    summary: "Upload resume",
+    description: "Upload resume file for job seeker",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Resume uploaded successfully",
+  })
+  @ApiConsumes("multipart/form-data")
+  @UseGuards(AuthGuard)
+  @Post("upload-resume")
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadResume(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: ".(pdf|doc|docx)" }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() uploadResumeDto: UploadResumeDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role !== "jobseeker") {
+      throw new ForbiddenException("Only job seekers can upload resumes");
+    }
+
+    return this.jobSeekersService.uploadResume(
+      user.id,
+      file,
+      uploadResumeDto.description,
+    );
+  }
+
+  @ApiOperation({
+    summary: "Delete resume",
+    description: "Delete resume file for job seeker",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Resume deleted successfully",
+  })
+  @UseGuards(AuthGuard)
+  @Delete("delete-resume")
+  async deleteResume(@Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role !== "jobseeker") {
+      throw new ForbiddenException("Only job seekers can delete resumes");
+    }
+
+    return this.jobSeekersService.deleteResume(user.id);
   }
 }

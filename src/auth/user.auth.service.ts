@@ -3,15 +3,15 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-} from "@nestjs/common"
-import { JwtService } from "@nestjs/jwt"
-import * as bcrypt from "bcrypt"
-import { Response } from "express"
-import { MailService } from "../mail/mail.service"
-import { CreateUserDto } from "../users/dto/create-user.dto"
-import { User } from "../users/entities/user.entity"
-import { UsersService } from "../users/users.service"
-import { SignInDto } from "./dto/sign-in.dto"
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import * as bcrypt from "bcrypt";
+import { Response } from "express";
+import { MailService } from "../mail/mail.service";
+import { CreateUserDto } from "../users/dto/create-user.dto";
+import { User } from "../users/entities/user.entity";
+import { UsersService } from "../users/users.service";
+import { SignInDto } from "./dto/sign-in.dto";
 
 @Injectable()
 export class UserAuthService {
@@ -26,6 +26,8 @@ export class UserAuthService {
       id: user.id,
       email: user.email,
       role: user.role,
+      jobSeekerId: user.jobSeekers[0]?.id,
+      employerId: user.employers[0]?.id,
     };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -67,6 +69,15 @@ export class UserAuthService {
     if (!isValidPassword) {
       throw new BadRequestException("Email or password incorrect!2");
     }
+    if (
+      user.role === "employer" &&
+      (!user.employers[0].isVerifiedByAdmin || !user.isActive)
+    ) {
+      throw new BadRequestException("Please wait for admin approval");
+    }
+    if (user.role === "jobSeeker" && !user.isActive) {
+      throw new BadRequestException("Please verify your email");
+    }
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
     res.cookie("refresh_token", refreshToken, {
@@ -106,7 +117,7 @@ export class UserAuthService {
       throw new ForbiddenException("Ruxsat etilmagan foydalanuvchi!");
     }
     const user = await this.usersService.findOne(userId);
-    if (!user && !user!) {
+    if (!user && !user) {
       throw new NotFoundException("User not found");
     }
 
@@ -207,10 +218,13 @@ export class UserAuthService {
         "New password and confirm password do not match",
       );
     }
-    const response = await this.usersService.updatePassword(userId, newPassword);
+    const response = await this.usersService.updatePassword(
+      userId,
+      newPassword,
+    );
     return {
       message: response.message,
-      data: {userId},
+      data: { userId },
       success: response.success,
     };
   }

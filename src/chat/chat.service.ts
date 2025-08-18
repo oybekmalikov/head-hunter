@@ -1,8 +1,6 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { JobApplicationsService } from "../job-applications/job-applications.service";
-import { UsersService } from "../users/users.service";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
 import { Chat } from "./entities/chat.entity";
@@ -12,21 +10,9 @@ export class ChatService {
   constructor(
     @InjectRepository(Chat)
     private chatRepo: Repository<Chat>,
-    private jobApplicationsService: JobApplicationsService,
-    private senderService: UsersService,
   ) {}
 
   async create(createChatDto: CreateChatDto) {
-    const jobApplication = await this.jobApplicationsService.findOne(
-      createChatDto.applicationId,
-    );
-    const sender = await this.senderService.findOne(createChatDto.senderId);
-    if (!jobApplication) {
-      throw new NotFoundException("Job application not found");
-    }
-    if (!sender) {
-      throw new NotFoundException("Sender not found");
-    }
     const chat = this.chatRepo.create(createChatDto);
     const savedChat = await this.chatRepo.save(chat);
     return {
@@ -37,7 +23,12 @@ export class ChatService {
   }
   async findAll() {
     const chats = await this.chatRepo.find({
-      relations: ["jobApplication", "sender", "recipient"],
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chats || chats.length === 0) {
       return {
@@ -52,10 +43,15 @@ export class ChatService {
     };
   }
   async findOne(id: number, userId?: number) {
-    const where = userId ? { id, sender: { id: userId } } : { id }; 
+    const where = userId ? { id, sender: { id: userId } } : { id };
     const chat = await this.chatRepo.findOne({
       where,
-      relations: ["jobApplication", "sender", "recipient"],
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chat) {
       return {
@@ -85,8 +81,25 @@ export class ChatService {
     };
   }
   async remove(id: number, userId?: number) {
-    const where = userId ? { id, sender: { id: userId } } : { id };
-    const chat = await this.chatRepo.delete(where);
+    if (userId) {
+      const chat = await this.chatRepo.update(
+        { id, senderId: userId },
+        { isDeleted: true },
+      );
+      if (!chat) {
+        return {
+          message: "Chat not found",
+          data: { affected: 1 },
+          success: false,
+        };
+      }
+      return {
+        message: "Chat removed successfully",
+        data: { affected: chat.affected },
+        success: true,
+      };
+    }
+    const chat = await this.chatRepo.delete({ id });
     if (!chat) {
       return {
         message: "Chat not found",
@@ -102,8 +115,13 @@ export class ChatService {
 
   async getChatsBySender(senderId: number) {
     const chats = await this.chatRepo.find({
-      where: { sender: { id: senderId } },
-      relations: ["jobApplication", "sender", "recipient"],
+      where: { senderId: senderId },
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chats || chats.length === 0) {
       return {
@@ -118,28 +136,15 @@ export class ChatService {
     };
   }
 
-  async getChatsByApplication(applicationId: number, userId: number) {
+  async getAllChatsByChatId(chatId: number, userId: number) {
     const chats = await this.chatRepo.find({
-      where: { applicationId, sender: { id: userId } },
-      relations: ["jobApplication", "sender", "recipient"],
-    });
-    if (!chats || chats.length === 0) {
-      return {
-        message: "No chats found",
-        success: false,
-      };
-    }
-    return {
-      message: "Chats retrieved successfully",
-      data: chats,
-      success: true,
-    };
-  }
-
-  async getChatByJobPosting(jobPostingId: number,userId:number) {
-    const chats = await this.chatRepo.find({
-      where: { jobApplication: { jobPostingId },sender: {id:userId} },
-      relations: ["jobApplication", "sender", "recipient"],
+      where: { chatId: chatId, senderId: userId },
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chats || chats.length === 0) {
       return {

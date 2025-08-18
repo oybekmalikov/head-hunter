@@ -126,7 +126,7 @@ export class AuthController {
   @Post("user/reset-password")
   async resetPassword(
     @Body("email") email: string,
-    @Body("password") password: string,
+    @Body("newPassword") password: string,
     @Body("confirmPassword") confirmPassword: string,
   ) {
     return this.authService.resetPassword(email, password, confirmPassword);
@@ -142,7 +142,7 @@ export class AuthController {
   })
   @UseGuards(AuthGuard)
   @HttpCode(200)
-  @Post("user/reset-password")
+  @Post("user/update-password")
   async newPassword(
     @Body("oldPassword") oldPassword: string,
     @Body("newPassword") newPassword: string,

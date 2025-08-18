@@ -22,9 +22,7 @@ export class SkillsCategoryService {
   }
 
   async findAll() {
-    const all = await this.skillcategoryRepo.find(
-      { order: { id: "ASC" } },
-    );
+    const all = await this.skillcategoryRepo.find({ order: { id: "ASC" } });
     if (!all || all.length === 0) {
       return { message: "No skills categories found.", success: false };
     }

@@ -2,6 +2,8 @@ import { ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import * as cookieParser from "cookie-parser";
+import * as express from "express";
+import { join } from "path";
 import { AppModule } from "./app.module";
 import { ErrorHandler } from "./common/error-handling/errorhandler";
 import { LoggerService } from "./common/logger/logger.service";
@@ -13,6 +15,7 @@ export async function start() {
     app.useGlobalPipes(new ValidationPipe());
     app.setGlobalPrefix("api");
     app.use(cookieParser());
+    app.use("/assets", express.static(join(__dirname, "..", "assets")));
     app.enableCors({
       origin: "*",
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -29,7 +32,7 @@ export async function start() {
     SwaggerModule.setup("api/docs", app, document);
     const logger = app.get(LoggerService);
     app.useGlobalFilters(new ErrorHandler(logger));
-    await app.listen(PORT, () => {
+    await app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server started on http://${HOST}:${PORT}`);
     });
   } catch (error) {

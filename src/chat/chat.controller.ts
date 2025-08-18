@@ -14,6 +14,7 @@ import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { accessMatrix } from "../app.constants";
 import { AccessControlGuard } from "../common/guards/access-control.guard";
 import { AuthGuard } from "../common/guards/auth.guard";
+import { SelfGuard } from "../common/guards/self.guard";
 import { ChatService } from "./chat.service";
 import { CreateChatDto } from "./dto/create-chat.dto";
 import { UpdateChatDto } from "./dto/update-chat.dto";
@@ -32,53 +33,30 @@ export class ChatController {
     description: "List of chat messages retrieved successfully",
   })
   @Get("sender/:senderId")
-  @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
+  @UseGuards(
+    new AccessControlGuard(accessMatrix, "chat"),
+    new SelfGuard("senderId", "id"),
+  )
   @UseGuards(AuthGuard)
-  getChatsBySender(@Param("senderId") senderId: number, @Req() req: Request) {
-    const user = (req as any).user;
-    if (senderId === user.id) {
-      return this.chatService.getChatsBySender(senderId);
-    }
-    throw new ForbiddenException("Access denied");
+  getChatsBySender(@Param("senderId") senderId: number) {
+    
+    return this.chatService.getChatsBySender(senderId);
   }
 
   @ApiOperation({
-    summary: "Get all chat messages for a specific job application",
-    description: "Get all chat messages for a specific job application",
+    summary: "Get all chat messages for a specific chat",
+    description: "Get all chat messages for a specific chat",
   })
   @ApiResponse({
     status: 200,
     description: "List of chat messages retrieved successfully",
   })
-  @Get("application/:applicationId")
+  @Get("chat/:chatId")
   @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
   @UseGuards(AuthGuard)
-  getChatsByApplication(
-    @Param("applicationId") applicationId: number,
-    @Req() req: Request,
-  ) {
+  getAllChatsByChatId(@Param("chatId") chatId: number, @Req() req: Request) {
     const user = (req as any).user;
-
-    return this.chatService.getChatsByApplication(applicationId, user.id);
-  }
-
-  @ApiOperation({
-    summary: "Get a single chat message by job posting ID",
-    description: "Get a single chat message by job posting ID",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Chat message retrieved successfully",
-  })
-  @Get("job-posting/:jobPostingId")
-  @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
-  @UseGuards(AuthGuard)
-  getChatByJobPosting(
-    @Param("jobPostingId") jobPostingId: number,
-    @Req() req: Request,
-  ) {
-    const user = (req as any).user;
-    return this.chatService.getChatByJobPosting(jobPostingId, user.id);
+    return this.chatService.getAllChatsByChatId(chatId, user.id);
   }
 
   @ApiOperation({
@@ -101,6 +79,7 @@ export class ChatController {
     description: "List of chats retrieved successfully",
   })
   @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
+  @UseGuards(AuthGuard)
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
@@ -119,6 +98,7 @@ export class ChatController {
     description: "Chat message retrieved successfully",
   })
   @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
+  @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
@@ -136,10 +116,14 @@ export class ChatController {
     status: 200,
     description: "Chat message updated successfully",
   })
-  @Patch(":id")
   @UseGuards(new AccessControlGuard(accessMatrix, "chat"))
   @UseGuards(AuthGuard)
-  update(@Param("id") id: string, @Body() updateChatDto: UpdateChatDto, @Req() req: Request) {
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateChatDto: UpdateChatDto,
+    @Req() req: Request,
+  ) {
     const user = (req as any).user;
     if (user.role === "admin" || user.role === "superadmin") {
       return this.chatService.update(+id, updateChatDto);

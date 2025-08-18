@@ -7,8 +7,8 @@ import {
   Param,
   Patch,
   Post,
-	Req,
-	UseGuards,
+  Req,
+  UseGuards,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { accessMatrix } from "../app.constants";
@@ -22,7 +22,7 @@ import { WorkExperienceService } from "./work-experience.service";
 @Controller("work-experience")
 export class WorkExperienceController {
   constructor(private readonly workExperienceService: WorkExperienceService) {}
-  
+
   @ApiOperation({
     summary: "Get work experiences by job seeker ID",
     description:
@@ -49,13 +49,14 @@ export class WorkExperienceController {
     description: "The work experience has been successfully created.",
   })
   @UseGuards(new AccessControlGuard(accessMatrix, "workExperience"))
+  @UseGuards(AuthGuard)
   @Post()
   create(
     @Body() createWorkExperienceDto: CreateWorkExperienceDto,
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker"||user.role === "superadmin") {
+    if (user.role === "jobseeker" || user.role === "superadmin") {
       return this.workExperienceService.create(createWorkExperienceDto);
     }
     throw new ForbiddenException("Access denied");
@@ -70,7 +71,7 @@ export class WorkExperienceController {
     status: 200,
     description: "Returns an array of work experiences.",
   })
-	@UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.workExperienceService.findAll();
@@ -85,7 +86,7 @@ export class WorkExperienceController {
     status: 200,
     description: "Returns the work experience with the specified ID.",
   })
-	@UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.workExperienceService.findOne(+id);
@@ -100,8 +101,8 @@ export class WorkExperienceController {
     status: 200,
     description: "The work experience has been successfully updated.",
   })
-	@UseGuards(new SelfGuard("id", "id"))
-	@UseGuards(AuthGuard)
+  @UseGuards(new SelfGuard("id", "id"))
+  @UseGuards(AuthGuard)
   @Patch(":id")
   update(
     @Param("id") id: string,
@@ -109,7 +110,7 @@ export class WorkExperienceController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker"||user.role === "superadmin") {
+    if (user.role === "jobseeker" || user.role === "superadmin") {
       return this.workExperienceService.update(+id, updateWorkExperienceDto);
     }
     throw new ForbiddenException("Access denied");
@@ -124,15 +125,14 @@ export class WorkExperienceController {
     status: 200,
     description: "The work experience has been successfully deleted.",
   })
-	@UseGuards(new SelfGuard("id", "id"))
-	@UseGuards(AuthGuard)
+  @UseGuards(new SelfGuard("id", "id"))
+  @UseGuards(AuthGuard)
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "jobseeker"||user.role === "superadmin") {
+    if (user.role === "jobseeker" || user.role === "superadmin") {
       return this.workExperienceService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
   }
-
 }

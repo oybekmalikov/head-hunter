@@ -70,7 +70,7 @@ export class SkillsService {
 
     return {
       message: "List of all skills",
-      data:{ data, total, page, limit },
+      data: { data, total, page, limit },
       success: true,
     };
   }

@@ -8,6 +8,6 @@ import { WorkExperienceService } from "./work-experience.service";
   imports: [TypeOrmModule.forFeature([WorkExperience])],
   controllers: [WorkExperienceController],
   providers: [WorkExperienceService],
-  exports:[WorkExperienceService]
+  exports: [WorkExperienceService],
 })
 export class WorkExperienceModule {}

@@ -11,10 +11,9 @@ export class JobSeekerPostingService {
   constructor(
     @InjectRepository(JobSeekerPosting)
     private jobSeekerPostingRepo: Repository<JobSeekerPosting>,
-   @Inject(forwardRef(() => JobSeekersService))
-  private jobSeekerService: JobSeekersService,
-  ) {
-  }
+    @Inject(forwardRef(() => JobSeekersService))
+    private jobSeekerService: JobSeekersService,
+  ) {}
 
   async create(createJobSeekerPostingDto: CreateJobSeekerPostingDto) {
     const jobSeekerResp = await this.jobSeekerService.findOne(
@@ -78,7 +77,7 @@ export class JobSeekerPostingService {
     updateJobSeekerPostingDto: UpdateJobSeekerPostingDto,
   ) {
     let jobSeeker: any = null;
-    let skill: any = null;
+    const skill: any = null;
     if (updateJobSeekerPostingDto.jobSeekerId !== undefined) {
       const jsResp = await this.jobSeekerService.findOne(
         Number(updateJobSeekerPostingDto.jobSeekerId),

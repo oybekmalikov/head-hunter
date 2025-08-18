@@ -23,7 +23,7 @@ import { EmployersService } from "./employers.service";
 @Controller("employers")
 export class EmployersController {
   constructor(private readonly employersService: EmployersService) {}
-  
+
   @ApiOperation({
     summary: "Get employer profile",
     description: "Get employer profile by id",
@@ -65,7 +65,7 @@ export class EmployersController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.employersService.findAll();
     }
     throw new ForbiddenException("Access denied");
@@ -88,7 +88,7 @@ export class EmployersController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin"||user.role === "superadmin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.employersService.findAllByPagination(page, limit);
     }
     throw new ForbiddenException("Access denied");
@@ -146,5 +146,40 @@ export class EmployersController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.employersService.remove(+id);
+  }
+
+  @ApiOperation({
+    summary: "Verify employer by id",
+    description: "Verify employer by id in the system.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The employer has been successfully verified.",
+  })
+  @UseGuards(AuthGuard)
+  @Patch("verify/:id")
+  verifyEmployer(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "superadmin") {
+      return this.employersService.verifyEmployer(+id);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  @ApiOperation({
+    summary: "Unverify employer by id",
+    description: "Unverify employer by id in the system.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The employer has been successfully unverified.",
+  })
+  @UseGuards(AuthGuard)
+  @Patch("unverify/:id")
+  unverifyEmployer(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if ( user.role === "superadmin") {
+      return this.employersService.unverifyEmployer(+id);
+    }
+    throw new ForbiddenException("Access denied");
   }
 }

@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { Edu } from "../../edu/entities/edu.entity";
 import { JobApplication } from "../../job-applications/entities/job-application.entity";
 import { JobSeekerPosting } from "../../job-seeker-posting/entities/job-seeker-posting.entity";
@@ -29,7 +35,7 @@ export class JobSeeker {
     example: "Ali",
     description: "This is the job seeker's birth date",
   })
-  @Column({nullable:false})
+  @Column({ nullable: false })
   dateOdBirth: string;
 
   // @ApiProperty({
@@ -83,8 +89,15 @@ export class JobSeeker {
     example: "https://www.resume.com/aliyevAli",
     description: "This is the job seeker's resume url",
   })
-  @Column()
+  @Column({ nullable: true })
   resumeUrl: string;
+
+  @ApiProperty({
+    example: "resume_123.pdf",
+    description: "This is the job seeker's resume filename",
+  })
+  @Column({ nullable: true })
+  resumeFilename: string;
 
   @ApiProperty({
     example: "QWERTY",

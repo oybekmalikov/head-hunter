@@ -4,9 +4,9 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { LoggerService } from '../logger/logger.service';
+} from "@nestjs/common";
+import { Request, Response } from "express";
+import { LoggerService } from "../logger/logger.service";
 @Catch()
 export class ErrorHandler implements ExceptionFilter {
   constructor(private readonly logger: LoggerService) {}
@@ -21,12 +21,10 @@ export class ErrorHandler implements ExceptionFilter {
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
     const message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : exception;
+      exception instanceof HttpException ? exception.getResponse() : exception;
 
     this.logger.error(
-      'Exception',
+      "Exception",
       `${request.method} ${request.url} -> ${JSON.stringify(message)}`,
     );
 

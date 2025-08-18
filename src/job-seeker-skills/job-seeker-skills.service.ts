@@ -79,11 +79,11 @@ export class JobSeekerSkillsService {
   async update(id: number, updateDto: UpdateJobSeekerSkillDto) {
     const jobSeeker =
       updateDto.jobSeekerId !== undefined
-        ? await this.jobSeekerService.findOne(updateDto.jobSeekerId as number)
+        ? await this.jobSeekerService.findOne(updateDto.jobSeekerId)
         : null;
     const skill =
       updateDto.skillId !== undefined
-        ? await this.skillService.findOne(updateDto.skillId as number)
+        ? await this.skillService.findOne(updateDto.skillId)
         : null;
 
     if (jobSeeker && skill) {

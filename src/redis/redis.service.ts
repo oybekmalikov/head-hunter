@@ -1,6 +1,6 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import * as Redis from 'ioredis';
-import { ConfigService } from '@nestjs/config';
+import { Injectable, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import * as Redis from "ioredis";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -9,8 +9,8 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
-    const redisUrl = this.configService.get<string>('REDIS_URL');
-    this.client = new Redis.Redis(process.env.REDIS_URL! );
+    const redisUrl = this.configService.get<string>("REDIS_URL");
+    this.client = new Redis.Redis(process.env.REDIS_URL!);
     // console.log('Connected to remote Redis');
   }
 
@@ -19,7 +19,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async set(key: string, value: string, ttlInSeconds: number): Promise<void> {
-    await this.client.set(key, value, 'EX', ttlInSeconds); 
+    await this.client.set(key, value, "EX", ttlInSeconds);
   }
 
   async get(key: string): Promise<string | null> {

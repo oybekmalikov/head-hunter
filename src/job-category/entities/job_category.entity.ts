@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { JobPosting } from "../../job-postings/entities/job-posting.entity";
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity({ name: "job-categories" })
 export class JobCategory {

@@ -9,6 +9,6 @@ import { Edu } from "./entities/edu.entity";
   imports: [TypeOrmModule.forFeature([Edu]), JobSeekersModule],
   controllers: [EduController],
   providers: [EduService],
-  exports:[EduService]
+  exports: [EduService],
 })
 export class EduModule {}

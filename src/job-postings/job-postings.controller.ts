@@ -34,7 +34,7 @@ export class JobPostingsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "employer"||user.role === "superadmin") {
+    if (user.role === "employer" || user.role === "superadmin") {
       return this.jobPostingsService.create(createJobPostingDto);
     }
     throw new ForbiddenException("Access denied");
@@ -408,6 +408,7 @@ export class JobPostingsController {
     @Query("published-at-from") publishedAtFrom?: string,
     @Query("published-at-to") publishedAtTo?: string,
     @Query("application-deadline-after") applicationDeadlineAfter?: string,
+    @Query("skills") skills?: string,
     @Query("page") page: string = "1",
     @Query("limit") limit: string = "10",
   ) {
@@ -424,6 +425,7 @@ export class JobPostingsController {
       publishedAtFrom,
       publishedAtTo,
       applicationDeadlineAfter,
+      skills: skills ? skills : undefined,
       page: +page,
       limit: +limit,
     };
@@ -515,5 +517,13 @@ export class JobPostingsController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.jobPostingsService.remove(+id);
+  }
+
+  @ApiOperation({ summary: "Find job postings by required skills" })
+  @ApiResponse({ status: 200, description: "Job postings found" })
+  @UseGuards(AuthGuard)
+  @Get("find-by-required-skills")
+  findJobByRequiredSkills(@Query("skills") skills: string[]) {
+    return this.jobPostingsService.findJobByRequiredSkills(skills);
   }
 }

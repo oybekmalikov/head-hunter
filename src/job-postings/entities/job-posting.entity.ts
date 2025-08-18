@@ -166,14 +166,14 @@ export class JobPosting {
     example: "2024-01-15",
     description: "When the job was published",
   })
-  @Column({default: () => "CURRENT_TIMESTAMP"})
+  @Column({ default: () => "CURRENT_TIMESTAMP" })
   publishedAt: Date;
 
   @ApiProperty({
     example: 4.5,
     description: "User rating for this job posting",
   })
-  @Column({ default: 0 , type: "float"})
+  @Column({ default: 0, type: "float" })
   userMark: number;
 
   @ApiProperty({

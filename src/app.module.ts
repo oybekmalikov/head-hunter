@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "./auth/auth.module";
 import { ChatModule } from "./chat/chat.module";
+import { ChatsModule } from "./chats/chats.module";
+import { CommonModule } from "./common/common.module";
+import { LoggerModule } from "./common/logger/logger.module";
 import { CompanyModule } from "./company/company.module";
 import { EduModule } from "./edu/edu.module";
 import { EmployersModule } from "./employers/employers.module";
@@ -13,14 +16,14 @@ import { JobSeekerPostingModule } from "./job-seeker-posting/job-seeker-posting.
 import { JobSeekerSkillsModule } from "./job-seeker-skills/job-seeker-skills.module";
 import { JobSeekersModule } from "./job-seekers/job-seekers.module";
 import { JobsNotificationsModule } from "./jobs-notifications/jobs-notifications.module";
+import { MailModule } from "./mail/mail.module";
+import { RedisModule } from "./redis/redis.module";
 import { SavedJobsModule } from "./saved-jobs/saved-jobs.module";
 import { SkillsCategoryModule } from "./skills-category/skills-category.module";
 import { SkillsModule } from "./skills/skills.module";
-import { WorkExperienceModule } from "./work-experience/work-experience.module";
-import { LoggerModule } from "./common/logger/logger.module";
-import { MailModule } from "./mail/mail.module";
-import { RedisModule } from "./redis/redis.module";
 import { UsersModule } from "./users/users.module";
+import { WorkExperienceModule } from "./work-experience/work-experience.module";
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -60,7 +63,10 @@ import { UsersModule } from "./users/users.module";
     JobSeekersModule,
     RedisModule,
     LoggerModule,
+    CommonModule,
     MailModule,
+    ChatsModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],

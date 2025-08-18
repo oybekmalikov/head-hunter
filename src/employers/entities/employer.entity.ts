@@ -47,6 +47,12 @@ export class Employer {
   @Column()
   department: string;
 
+  @ApiProperty({
+    example: false,
+    description: "This is the employer's isVerifiedByAdmin status",
+  })
+  @Column({ default: false })
+  isVerifiedByAdmin: boolean;
   // Relations
   @ManyToOne(() => User, (user) => user.employers)
   user: User;

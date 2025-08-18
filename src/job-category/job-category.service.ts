@@ -99,7 +99,7 @@ export class JobCategoryService {
   async findAllByName(name: string) {
     const categories = await this.jobcategoryRepo
       .createQueryBuilder("job_category")
-      .where("job_category.name LIKE :name", { name: `%${name}%` })
+      .where("LOWER(job_category.name) LIKE LOWER(:name)", { name: `%${name}%` })
       .getMany();
 
     if (!categories.length) {

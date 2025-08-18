@@ -13,5 +13,5 @@ export const CookieGetter = createParamDecorator(
       throw new UnauthorizedException("Token is not found");
     }
     return refreshToken;
-  }
+  },
 );

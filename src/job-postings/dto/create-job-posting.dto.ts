@@ -74,7 +74,8 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "job_type is required" })
   @IsString({ message: "job_type must be a string" })
   @IsIn(["full-time", "part-time", "contract", "internship"], {
-    message: "job_type must be one of: full-time, part-time, contract, internship",
+    message:
+      "job_type must be one of: full-time, part-time, contract, internship",
   })
   jobType: string;
 
@@ -142,7 +143,8 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "experience_level is required" })
   @IsString({ message: "experience_level must be a string" })
   @IsIn(["intern", "junior", "mid", "senior", "lead"], {
-    message: "experience_level must be one of: intern, junior, mid, senior, lead",
+    message:
+      "experience_level must be one of: intern, junior, mid, senior, lead",
   })
   experienceLevel: string;
 
@@ -153,7 +155,8 @@ export class CreateJobPostingDto {
   @IsNotEmpty({ message: "education_level is required" })
   @IsString({ message: "education_level must be a string" })
   @IsIn(["high_school", "bachelor", "master", "phd"], {
-    message: "education_level must be one of: high_school, bachelor, master, phd",
+    message:
+      "education_level must be one of: high_school, bachelor, master, phd",
   })
   educationLevel: string;
 
@@ -162,7 +165,10 @@ export class CreateJobPostingDto {
     description: "Deadline for job application",
   })
   @IsNotEmpty({ message: "application_deadline is required" })
-  @IsDateString({}, { message: "application_deadline must be a valid ISO date string" })
+  @IsDateString(
+    {},
+    { message: "application_deadline must be a valid ISO date string" },
+  )
   applicationDeadline: Date;
 
   @ApiProperty({

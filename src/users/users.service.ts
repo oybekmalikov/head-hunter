@@ -7,6 +7,7 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import * as bcrypt from "bcrypt";
 import { Repository } from "typeorm";
+import { FileUploadService } from "../common/services/file-upload.service";
 import { MailService } from "../mail/mail.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -17,6 +18,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly mailService: MailService,
+    private readonly fileUploadService: FileUploadService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -101,6 +103,27 @@ export class UsersService {
       success: true,
     };
   }
+  async findAllUsers(page: number, limit: number) {
+    const [data, total] = await this.userRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+      where: [{ role: "user" }, { role: "jobSeeker" }, { role: "employer" }],
+      relations: ["employers", "jobSeekers"],
+    });
+    if (!data) {
+      return {
+        message: "Users not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Users retrieved successfully",
+      data: data,
+      total: total,
+      success: true,
+    };
+  }
 
   async findOne(id: number) {
     const user = await this.userRepo.findOne({
@@ -165,7 +188,7 @@ export class UsersService {
   }
 
   async findByEmail(email: string) {
-    return this.userRepo.findOneBy({ email });
+    return this.userRepo.findOne({ where: { email }, relations: ["jobSeekers", "employers"] });
   }
 
   async findByPhone(phone: string) {
@@ -221,5 +244,49 @@ export class UsersService {
       data: user,
       success: true,
     };
+  }
+  async uploadUserAvatar(id: number, file: Express.Multer.File) {
+    const user = await this.findOne(id);
+    if (!user?.data) {
+      throw new NotFoundException("User not found");
+    }
+    if (user.data.avatarUrl) {
+      const oldFilename = user.data.avatarUrl.split("/").pop();
+      if (oldFilename) {
+        await this.fileUploadService.deleteFile(oldFilename);
+      }
+    }
+    const avatarUrl = this.fileUploadService.getFileUrl(file.filename);
+    await this.userRepo.update(
+      { id },
+      { avatarUrl: `${process.env.API_HOST}/${avatarUrl}` },
+    );
+    return {
+      message: "Avatar uploaded successfully",
+      data: { avatarUrl: `${process.env.API_HOST}/${avatarUrl}` },
+      success: true,
+    };
+  }
+
+  async deleteUserAvatar(id: number) {
+    const user = await this.findOne(id);
+    if (!user?.data) {
+      throw new NotFoundException("User not found");
+    }
+    if (user.data.avatarUrl) {
+      const filename = user.data.avatarUrl.split("/").pop();
+      if (filename) {
+        await this.fileUploadService.deleteFile(filename);
+      }
+      await this.userRepo.update({ id }, { avatarUrl: "" });
+    }
+    return {
+      message: "Avatar deleted successfully",
+      success: true,
+    };
+  }
+
+  async findByRole(role: string) {
+    return this.userRepo.find({ where: { role } });
   }
 }

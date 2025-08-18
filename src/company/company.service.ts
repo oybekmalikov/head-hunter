@@ -81,7 +81,7 @@ export class CompanyService {
   }
 
   async getCompanyByName(name: string) {
-    const nameFormatted = name.charAt(0).toUpperCase()+name.slice(1);
+    const nameFormatted = name.charAt(0).toUpperCase() + name.slice(1);
     const company = await this.companyRepo
       .createQueryBuilder("company")
       .where("company.name LIKE :name", { name: `%${nameFormatted}%` })

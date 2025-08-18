@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Chat } from "../../chat/entities/chat.entity";
+import { AllChats } from "../../chats/entities/chat.entity";
 import { JobPosting } from "../../job-postings/entities/job-posting.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
 
@@ -53,7 +53,10 @@ export class JobApplication {
     description:
       "The status of the job application || pending, accepted, rejected",
   })
-  @Column({ enum: ["pending", "accepted", "rejected", "interview"], default: "pending" })
+  @Column({
+    enum: ["pending", "accepted", "rejected", "interview"],
+    default: "pending",
+  })
   status: string;
 
   // Relations
@@ -65,6 +68,8 @@ export class JobApplication {
   @JoinColumn({ name: "jobSeekerId", referencedColumnName: "id" })
   jobSeeker: JobSeeker;
 
-  @OneToMany(() => Chat, (chat) => chat.jobApplication)
-  chats: Chat[];
+  @OneToMany(() => AllChats, (allChats) => allChats.jobApplication, {
+    onDelete: "SET NULL",
+  })
+  allChats: AllChats[];
 }
