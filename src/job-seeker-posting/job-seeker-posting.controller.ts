@@ -10,13 +10,12 @@ import {
   Req,
   UseGuards,
 } from "@nestjs/common";
-
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "../common/guards/auth.guard";
 import { SelfGuard } from "../common/guards/self.guard";
 import { CreateJobSeekerPostingDto } from "./dto/create-job-seeker-posting.dto";
 import { UpdateJobSeekerPostingDto } from "./dto/update-job-seeker-posting.dto";
 import { JobSeekerPostingService } from "./job-seeker-posting.service";
-import { AuthGuard } from "../common/guards/auth.guard";
 
 @ApiTags("Job Seeker Postings")
 @Controller("job-seeker-posting")
@@ -65,7 +64,7 @@ export class JobSeekerPostingController {
   @Post()
   create(@Body() createDto: CreateJobSeekerPostingDto, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "jobseeker") {
+    if (user.role === "jobseeker"||user.role === "superadmin") {
       return this.jobSeekerPostingService.create(createDto);
     }
     throw new ForbiddenException("Access denied");
@@ -107,7 +106,7 @@ export class JobSeekerPostingController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "jobseeker" || user.role === "admin") {
+    if (user.role === "jobseeker" || user.role === "admin"||user.role === "superadmin") {
       return this.jobSeekerPostingService.update(+id, updateDto);
     }
     throw new ForbiddenException("Access denied");
@@ -123,7 +122,7 @@ export class JobSeekerPostingController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "jobseeker" || user.role === "admin") {
+    if (user.role === "jobseeker" || user.role === "admin"||user.role === "superadmin") {
       return this.jobSeekerPostingService.remove(+id);
     }
     throw new ForbiddenException("Access denied");

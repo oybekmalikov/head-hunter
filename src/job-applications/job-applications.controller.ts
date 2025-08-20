@@ -25,121 +25,13 @@ export class JobApplicationsController {
     private readonly jobApplicationsService: JobApplicationsService,
   ) {}
 
-  @ApiOperation({
-    summary: "Create a new job application",
-    description: "This endpoint allows you to create a new job application.",
-  })
-  @ApiResponse({
-    status: 201,
-    description: "Job application created successfully.",
-  })
-  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
-  @UseGuards(AuthGuard)
-  @Post()
-  create(@Body() createJobApplicationDto: CreateJobApplicationDto) {
-    return this.jobApplicationsService.create(createJobApplicationDto);
-  }
-
-  @ApiOperation({
-    summary: "Get all job applications",
-    description: "This endpoint retrieves all job applications.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job applications retrieved successfully.",
-  })
-  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
-  @UseGuards(AuthGuard)
-  @Get()
-  findAll(@Req() req: Request) {
-    const user = (req as any).user;
-    if (user.role === "admin") {
-      return this.jobApplicationsService.findAll();
-    } else if (user.role === "employer") {
-      return this.jobApplicationsService.findAllApplicationsByEmployerId(
-        user.id,
-      );
-    } else if (user.role === "jobseeker") {
-      return this.jobApplicationsService.findAllAplicationsByJobSeekerId(
-        user.id,
-      );
-    }
-    throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Get a job application by ID",
-    description: "This endpoint retrieves a job application by its ID.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job application retrieved successfully.",
-  })
-  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
-  @UseGuards(AuthGuard)
-  @Get(":id")
-  findOne(@Param("id") id: string, @Req() req: Request) {
-    const user = (req as any).user;
-    if (user.role === "admin") {
-      return this.jobApplicationsService.findOne(+id);
-    } else if (user.role === "employer") {
-      return this.jobApplicationsService.findOne(+id, user.id, user.role);
-    } else if (user.role === "jobseeker") {
-      return this.jobApplicationsService.findOne(+id, user.id, user.role);
-    }
-    throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Update a job application",
-    description:
-      "This endpoint allows you to update a job application by its ID.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job application updated successfully.",
-  })
-  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
-  @UseGuards(AuthGuard)
-  @Patch(":id")
-  update(
-    @Param("id") id: string,
-    @Body() updateJobApplicationDto: UpdateJobApplicationDto,
-    @Req() req: Request,
-  ) {
-    const user = (req as any).user;
-    if (user.role === "admin") {
-      return this.jobApplicationsService.update(+id, updateJobApplicationDto);
-    }
-    throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Delete a job application",
-    description:
-      "This endpoint allows you to delete a job application by its ID.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job application deleted successfully.",
-  })
-  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
-  @UseGuards(AuthGuard)
-  @Delete(":id")
-  remove(@Param("id") id: string, @Req() req: Request) {
-    const user = (req as any).user;
-    if (user.role === "admin") {
-      return this.jobApplicationsService.remove(+id);
-    }
-    throw new ForbiddenException("Access denied");
-  }
-
+  
   @ApiOperation({
     summary: "Get all job applications by job seeker ID",
     description:
       "This endpoint retrieves all job applications for a specific job seeker.",
-  })
-  @ApiResponse({
+    })
+    @ApiResponse({
     status: 200,
     description: "Job applications retrieved successfully for job seeker.",
   })
@@ -161,7 +53,7 @@ export class JobApplicationsController {
   @ApiOperation({
     summary: "Get all job applications by job seeker ID and pagination",
     description:
-      "This endpoint retrieves all job applications for a specific job seeker.",
+    "This endpoint retrieves all job applications for a specific job seeker.",
   })
   @ApiResponse({
     status: 200,
@@ -189,12 +81,12 @@ export class JobApplicationsController {
   @ApiOperation({
     summary: "Get all job applications by job seeker ID and status",
     description:
-      "This endpoint retrieves all job applications for a specific job seeker and status.",
+    "This endpoint retrieves all job applications for a specific job seeker and status.",
   })
   @ApiResponse({
     status: 200,
     description:
-      "Job applications retrieved successfully for job seeker and status.",
+    "Job applications retrieved successfully for job seeker and status.",
   })
   @UseGuards(AuthGuard)
   @Get("job-seeker/:jobSeekerId/status/:status")
@@ -212,7 +104,7 @@ export class JobApplicationsController {
     }
     throw new ForbiddenException("Access denied");
   }
-
+  
   @ApiOperation({
     summary: "Get all job applications by job posting ID",
     description:
@@ -229,7 +121,7 @@ export class JobApplicationsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobApplicationsService.findAllApplicationsByJobPostingId(
         +jobPostingId,
       );
@@ -261,7 +153,7 @@ export class JobApplicationsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobApplicationsService.findAllApplicationsByJobPostingIdAndStatus(
         +jobPostingId,
         status,
@@ -328,6 +220,114 @@ export class JobApplicationsController {
         jobPostingsCategoryId,
         jobSeekerId,
       );
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  @ApiOperation({
+    summary: "Create a new job application",
+    description: "This endpoint allows you to create a new job application.",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Job application created successfully.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
+  @UseGuards(AuthGuard)
+  @Post()
+  create(@Body() createJobApplicationDto: CreateJobApplicationDto) {
+    return this.jobApplicationsService.create(createJobApplicationDto);
+  }
+  
+  @ApiOperation({
+    summary: "Get all job applications",
+    description: "This endpoint retrieves all job applications.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job applications retrieved successfully.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
+  @UseGuards(AuthGuard)
+  @Get()
+  findAll(@Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin"||user.role === "superadmin") {
+      return this.jobApplicationsService.findAll();
+    } else if (user.role === "employer") {
+      return this.jobApplicationsService.findAllApplicationsByEmployerId(
+        user.id,
+      );
+    } else if (user.role === "jobseeker") {
+      return this.jobApplicationsService.findAllAplicationsByJobSeekerId(
+        user.id,
+      );
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  
+  @ApiOperation({
+    summary: "Get a job application by ID",
+    description: "This endpoint retrieves a job application by its ID.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job application retrieved successfully.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
+  @UseGuards(AuthGuard)
+  @Get(":id")
+  findOne(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin"||user.role === "superadmin") {
+      return this.jobApplicationsService.findOne(+id);
+    } else if (user.role === "employer") {
+      return this.jobApplicationsService.findOne(+id, user.id, user.role);
+    } else if (user.role === "jobseeker") {
+      return this.jobApplicationsService.findOne(+id, user.id, user.role);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  
+  @ApiOperation({
+    summary: "Update a job application",
+    description:
+      "This endpoint allows you to update a job application by its ID.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job application updated successfully.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
+  @UseGuards(AuthGuard)
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateJobApplicationDto: UpdateJobApplicationDto,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    if (user.role === "admin"||user.role === "superadmin") {
+      return this.jobApplicationsService.update(+id, updateJobApplicationDto);
+    }
+    throw new ForbiddenException("Access denied");
+  }
+  
+  @ApiOperation({
+    summary: "Delete a job application",
+    description:
+      "This endpoint allows you to delete a job application by its ID.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job application deleted successfully.",
+  })
+  @UseGuards(new AccessControlGuard(accessMatrix, "jobApplication"))
+  @UseGuards(AuthGuard)
+  @Delete(":id")
+  remove(@Param("id") id: string, @Req() req: Request) {
+    const user = (req as any).user;
+    if (user.role === "admin"||user.role === "superadmin") {
+      return this.jobApplicationsService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
   }

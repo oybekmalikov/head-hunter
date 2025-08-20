@@ -24,6 +24,21 @@ import { EmployersService } from "./employers.service";
 @Controller("employers")
 export class EmployersController {
   constructor(private readonly employersService: EmployersService) {}
+  
+  @ApiOperation({
+    summary: "Get employer profile",
+    description: "Get employer profile by id",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "The employer profile was successfully received.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("profile")
+  userProfile(@Req() req: Request) {
+    const user = (req as any).user;
+    return this.employersService.userProfile(user.id);
+  }
   @ApiOperation({
     summary: "Create Employer",
     description: "The employer is added to the system through data.",
@@ -51,7 +66,7 @@ export class EmployersController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.employersService.findAll();
     }
     throw new ForbiddenException("Access denied");
@@ -74,7 +89,7 @@ export class EmployersController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.employersService.findAllByPagination(page, limit);
     }
     throw new ForbiddenException("Access denied");
@@ -132,20 +147,5 @@ export class EmployersController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.employersService.remove(+id);
-  }
-
-  @ApiOperation({
-    summary: "Get employer profile",
-    description: "Get employer profile by id",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "The employer profile was successfully received.",
-  })
-  @UseGuards(AuthGuard)
-  @Get("profile")
-  userProfile(@Req() req: Request) {
-    const user = (req as any).user;
-    return this.employersService.userProfile(user.id);
   }
 }

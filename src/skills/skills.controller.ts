@@ -24,13 +24,32 @@ import { SkillsService } from "./skills.service";
 export class SkillsController {
   constructor(private readonly skillsService: SkillsService) {}
 
+  
+  @ApiOperation({
+    summary: "Get skills by name",
+    description: "Search for skills by name",
+  })
+  @ApiResponse({ status: 200, description: "Skills found by name." })
+  @UseGuards(new AccessControlGuard(accessMatrix, "skills"))
+  @Get("search/:name")
+  findByName(@Param("name") name: string) {
+    return this.skillsService.findAllByName(name);
+  }
+  
+  @ApiOperation({ summary: "Get skills by category ID" })
+  @ApiResponse({ status: 200, description: "Skills found by category ID." })
+  @UseGuards(new AccessControlGuard(accessMatrix, "skills"))
+  @Get("category/:categoryId")
+  findByCategoryId(@Param("categoryId", ParseIntPipe) categoryId: number) {
+    return this.skillsService.findAllByCategory(categoryId);
+  }
   @ApiOperation({ summary: "Create a new skill" })
   @ApiResponse({ status: 201, description: "Created" })
   @UseGuards(new AccessControlGuard(accessMatrix, "skills"))
   @Post()
   create(@Body() createSkillDto: CreateSkillDto, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsService.create(createSkillDto);
     }
     throw new ForbiddenException("Access denied");
@@ -82,7 +101,7 @@ export class SkillsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsService.update(id, updateSkillDto);
     }
     throw new ForbiddenException("Access denied");
@@ -94,28 +113,9 @@ export class SkillsController {
   @Delete(":id")
   remove(@Param("id", ParseIntPipe) id: number, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsService.remove(id);
     }
     throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Get skills by name",
-    description: "Search for skills by name",
-  })
-  @ApiResponse({ status: 200, description: "Skills found by name." })
-  @UseGuards(new AccessControlGuard(accessMatrix, "skills"))
-  @Get("search/:name")
-  findByName(@Param("name") name: string) {
-    return this.skillsService.findAllByName(name);
-  }
-
-  @ApiOperation({ summary: "Get skills by category ID" })
-  @ApiResponse({ status: 200, description: "Skills found by category ID." })
-  @UseGuards(new AccessControlGuard(accessMatrix, "skills"))
-  @Get("category/:categoryId")
-  findByCategoryId(@Param("categoryId", ParseIntPipe) categoryId: number) {
-    return this.skillsService.findAllByCategory(categoryId);
   }
 }

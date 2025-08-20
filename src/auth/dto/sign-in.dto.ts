@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsStrongPassword, Matches } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsStrongPassword, Matches } from "class-validator";
 
 export class SignInDto {
 
@@ -23,5 +23,19 @@ export class SignInDto {
     minNumbers: 1,
     minSymbols: 1
   })
-  readonly password: string;  
+  readonly password: string;
+
+  @ApiProperty({
+    example: "example1234",
+    description: "This user's confirm password"
+  })
+  @IsStrongPassword({
+    minLength: 8,
+    minLowercase: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minSymbols: 1
+  })
+  @IsOptional()
+  readonly confirm_password?: string;
 }

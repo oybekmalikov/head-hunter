@@ -24,6 +24,37 @@ import { JobCategoryService } from "./job-category.service";
 export class JobCategoryController {
   constructor(private readonly jobCategoryService: JobCategoryService) {}
 
+  
+  @ApiOperation({
+    summary: "Get all job categories by name",
+    description:
+    "This endpoint retrieves all job categories matching the given name (case-insensitive).",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job categories retrieved successfully by name.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("job-category-name/:name")
+  async findAllByName(@Param("name") name: string) {
+    return this.jobCategoryService.findAllByName(name);
+  }
+  
+  @ApiOperation({
+    summary: "Get all job categories by active status",
+    description:
+    "This endpoint retrieves all job categories filtered by active/inactive status.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Job categories retrieved successfully by active status.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("job-category-active/:isActive")
+  async findAllByIsActive(@Param("isActive") isActive: string) {
+    const activeBool = isActive === "true";
+    return this.jobCategoryService.findAllByIsActive(activeBool);
+  }
   @Post()
   @ApiOperation({ summary: "Create a new job category" })
   @ApiResponse({
@@ -38,12 +69,12 @@ export class JobCategoryController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobCategoryService.create(createJobCategoryDto);
     }
     throw new ForbiddenException("Access denied");
   }
-
+  
   @ApiOperation({ summary: "Get all job categories" })
   @ApiResponse({
     status: 200,
@@ -54,7 +85,7 @@ export class JobCategoryController {
   findAll() {
     return this.jobCategoryService.findAll();
   }
-
+  
   @ApiOperation({
     summary: "Get all job categories with pagination",
     description: "This endpoint retrieves job categories with pagination.",
@@ -71,7 +102,7 @@ export class JobCategoryController {
   ) {
     return this.jobCategoryService.findAllByPagination(+page, +limit);
   }
-
+  
   @ApiOperation({ summary: "Get a job category by ID" })
   @ApiResponse({ status: 200, description: "Job category found." })
   @UseGuards(AuthGuard)
@@ -79,7 +110,7 @@ export class JobCategoryController {
   findOne(@Param("id") id: string) {
     return this.jobCategoryService.findOne(+id);
   }
-
+  
   @ApiOperation({ summary: "Update a job category by ID" })
   @ApiResponse({
     status: 200,
@@ -94,12 +125,12 @@ export class JobCategoryController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobCategoryService.update(+id, updateJobCategoryDto);
     }
     throw new ForbiddenException("Access denied");
   }
-
+  
   @ApiOperation({ summary: "Delete a job category by ID" })
   @ApiResponse({
     status: 204,
@@ -110,40 +141,9 @@ export class JobCategoryController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.jobCategoryService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
-  }
-
-  @ApiOperation({
-    summary: "Get all job categories by name",
-    description:
-      "This endpoint retrieves all job categories matching the given name (case-insensitive).",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job categories retrieved successfully by name.",
-  })
-  @UseGuards(AuthGuard)
-  @Get("job-category-name/:name")
-  async findAllByName(@Param("name") name: string) {
-    return this.jobCategoryService.findAllByName(name);
-  }
-
-  @ApiOperation({
-    summary: "Get all job categories by active status",
-    description:
-      "This endpoint retrieves all job categories filtered by active/inactive status.",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Job categories retrieved successfully by active status.",
-  })
-  @UseGuards(AuthGuard)
-  @Get("job-category-active/:isActive")
-  async findAllByIsActive(@Param("isActive") isActive: string) {
-    const activeBool = isActive === "true";
-    return this.jobCategoryService.findAllByIsActive(activeBool);
   }
 }

@@ -104,7 +104,7 @@ export class ChatController {
   @Get()
   findAll(@Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.chatService.findAll();
     }
     throw new ForbiddenException("Access denied");
@@ -122,7 +122,7 @@ export class ChatController {
   @Get(":id")
   findOne(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.chatService.findOne(+id);
     }
     return this.chatService.findOne(+id, user.id);
@@ -141,7 +141,7 @@ export class ChatController {
   @UseGuards(AuthGuard)
   update(@Param("id") id: string, @Body() updateChatDto: UpdateChatDto, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.chatService.update(+id, updateChatDto);
     }
     return this.chatService.update(+id, updateChatDto, user.id);
@@ -160,7 +160,7 @@ export class ChatController {
   @UseGuards(AuthGuard)
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "superadmin") {
       return this.chatService.remove(+id);
     }
     return this.chatService.remove(+id, user.id);

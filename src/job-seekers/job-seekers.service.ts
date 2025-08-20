@@ -4,15 +4,20 @@ import { Repository } from "typeorm";
 import { CreateJobSeekerDto } from "./dto/create-job-seeker.dto";
 import { UpdateJobSeekerDto } from "./dto/update-job-seeker.dto";
 import { JobSeeker } from "./entities/job-seeker.entity";
+import { UsersService } from "src/users/users.service";
 
 @Injectable()
 export class JobSeekersService {
   constructor(
     @InjectRepository(JobSeeker)
     private readonly jobSeekerRepo: Repository<JobSeeker>,
+    private readonly userService: UsersService,
   ) {}
   async create(createJobSeekerDto: CreateJobSeekerDto) {
     const jobSeeker = await this.jobSeekerRepo.save(createJobSeekerDto);
+    await this.userService.update(createJobSeekerDto.userId, {
+      role: "jobseeker",
+    });
     return {
       message: "Job Seeker created successfully!",
       data: jobSeeker,
@@ -111,13 +116,14 @@ export class JobSeekersService {
   }
   async userProfile(id: number) {
     const user = await this.jobSeekerRepo.findOne({
-      where: { id },
+      where: { userId: id },
       relations: [
         "user",
-        "jobSeekerSkills",
-        "jobSeekerPostings",
-        "workExperiences",
-        "educations",
+        "skills",
+        "postings",
+        "workExperience",
+        "education",
+        "applications",
       ],
     });
     if (!user) {

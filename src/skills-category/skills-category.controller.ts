@@ -24,6 +24,19 @@ import { SkillsCategoryService } from "./skills-category.service";
 export class SkillsCategoryController {
   constructor(private readonly skillsCategoryService: SkillsCategoryService) {}
 
+  @ApiOperation({
+    summary: "Find all skills by name",
+    description: "Returns a list of skills by name",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "A list of all skill categories.",
+  })
+  @UseGuards(AuthGuard)
+  @Get("skill-category-name/:name")
+  async findAllByName(@Param("name") name: string) {
+    return this.skillsCategoryService.findAllByName(name);
+  }
   @ApiOperation({ summary: "Create a new skills category" })
   @ApiResponse({
     status: 201,
@@ -36,7 +49,7 @@ export class SkillsCategoryController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsCategoryService.create(createSkillsCategoryDto);
     }
     throw new ForbiddenException("Access denied");
@@ -95,7 +108,7 @@ export class SkillsCategoryController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsCategoryService.update(+id, updateSkillsCategoryDto);
     }
     throw new ForbiddenException("Access denied");
@@ -110,22 +123,9 @@ export class SkillsCategoryController {
   @Delete(":id")
   remove(@Param("id") id: string, @Req() req: Request) {
     const user = (req as any).user;
-    if (user.role === "admin") {
+    if (user.role === "admin"||user.role === "superadmin") {
       return this.skillsCategoryService.remove(+id);
     }
     throw new ForbiddenException("Access denied");
-  }
-  @ApiOperation({
-    summary: "Find all skills by name",
-    description: "Returns a list of skills by name",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "A list of all skill categories.",
-  })
-  @UseGuards(AuthGuard)
-  @Get("skill-category-name/:name")
-  async findAllByName(@Param("name") name: string) {
-    return this.skillsCategoryService.findAllByName(name);
   }
 }

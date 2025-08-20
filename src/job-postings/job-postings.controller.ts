@@ -34,7 +34,7 @@ export class JobPostingsController {
     @Req() req: Request,
   ) {
     const user = (req as any).user;
-    if (user.role === "employer") {
+    if (user.role === "employer"||user.role === "superadmin") {
       return this.jobPostingsService.create(createJobPostingDto);
     }
     throw new ForbiddenException("Access denied");

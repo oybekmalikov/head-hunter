@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   Res,
   UseGuards,
 } from "@nestjs/common";
@@ -22,7 +23,6 @@ import { UserAuthService } from "./user.auth.service";
 export class AuthController {
   constructor(private readonly authService: UserAuthService) {}
 
-  // ______________________________USERS______________________________
   @ApiOperation({
     summary: "Login for users",
     description: "The user logs in through this endpoint!",
@@ -91,12 +91,11 @@ export class AuthController {
     status: 200,
     description: "User verified successfully!",
   })
-  @UseGuards(AuthGuard)
   @HttpCode(200)
   @Post("user/verify-otp")
   async verifyOtp(
     @Body("email") email: string,
-    @Body("userOtp") userOtp: string,
+    @Body("otp") userOtp: string,
     @Body("type") type: "signup" | "forget-password",
   ) {
     return this.authService.verifyOtp(email, userOtp, type);
@@ -110,7 +109,6 @@ export class AuthController {
     status: 200,
     description: "User forgot password successfully!",
   })
-  @UseGuards(AuthGuard)
   @HttpCode(200)
   @Post("user/forget-password")
   async forgetPassword(@Body("email") email: string) {
@@ -136,5 +134,29 @@ export class AuthController {
     return this.authService.resetPassword(email, password, confirmPassword);
   }
 
-  // ______________________________ADMINS______________________________
+  @ApiOperation({
+    summary: "User new password",
+    description: "The user get new password through this endpoint.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "User new password successfully!",
+  })
+  @UseGuards(AuthGuard)
+  @HttpCode(200)
+  @Post("user/reset-password")
+  async newPassword(
+    @Body("oldPassword") oldPassword: string,
+    @Body("newPassword") newPassword: string,
+    @Body("confirmPassword") confirmPassword: string,
+    @Req() req: Request,
+  ) {
+    const user = (req as any).user;
+    return this.authService.updatePassword(
+      oldPassword,
+      newPassword,
+      confirmPassword,
+      user.id,
+    );
+  }
 }
