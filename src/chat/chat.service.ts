@@ -1,10 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { JobApplicationsService } from "../job-applications/job-applications.service";
-import { UsersService } from "../users/users.service";
-import { CreateChatDto } from "./dto/create-chat.dto";
-import { UpdateChatDto } from "./dto/update-chat.dto";
+import { CreateChatPrivateDto } from "./dto/create-chat.dto";
+import { UpdatePrivateChatDto } from "./dto/update-chat.dto";
 import { Chat } from "./entities/chat.entity";
 
 @Injectable()
@@ -12,21 +10,9 @@ export class ChatService {
   constructor(
     @InjectRepository(Chat)
     private chatRepo: Repository<Chat>,
-    private jobApplicationsService: JobApplicationsService,
-    private senderService: UsersService,
   ) {}
 
-  async create(createChatDto: CreateChatDto) {
-    const jobApplication = await this.jobApplicationsService.findOne(
-      createChatDto.applicationId,
-    );
-    const sender = await this.senderService.findOne(createChatDto.senderId);
-    if (!jobApplication) {
-      throw new NotFoundException("Job application not found");
-    }
-    if (!sender) {
-      throw new NotFoundException("Sender not found");
-    }
+  async create(createChatDto: CreateChatPrivateDto) {
     const chat = this.chatRepo.create(createChatDto);
     const savedChat = await this.chatRepo.save(chat);
     return {
@@ -35,10 +21,14 @@ export class ChatService {
       success: true,
     };
   }
-
   async findAll() {
     const chats = await this.chatRepo.find({
-      relations: ["jobApplication", "sender", "recipient"],
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chats || chats.length === 0) {
       return {
@@ -52,11 +42,16 @@ export class ChatService {
       success: true,
     };
   }
-
-  async findOne(id: number) {
+  async findOne(id: number, userId?: number) {
+    const where = userId ? { id, sender: { id: userId } } : { id };
     const chat = await this.chatRepo.findOne({
-      where: { id },
-      relations: ["jobApplication", "sender", "recipient"],
+      where,
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
     });
     if (!chat) {
       return {
@@ -70,63 +65,9 @@ export class ChatService {
       success: true,
     };
   }
-
-  async findTitle(title: string) {
-    const chat = await this.chatRepo.findOne({
-      where: { title },
-      relations: ["sender", "recipient"],
-    });
-    if (!chat) {
-      return {
-        message: "Chat not found",
-        success: false,
-      };
-    }
-    return {
-      message: "Chat retrieved successfully",
-      data: chat,
-      success: true,
-    };
-  }
-
-  async findBySender(senderId: number) {
-    const chats = await this.chatRepo.find({
-      where: { senderId },
-      relations: ["jobApplication", "sender", "recipient"],
-    });
-    if (!chats || chats.length === 0) {
-      return {
-        message: "No chats found",
-        success: false,
-      };
-    }
-    return {
-      message: "Chats retrieved successfully",
-      data: chats,
-      success: true,
-    };
-  }
-
-  async findByContent(content: string) {
-    const chats = await this.chatRepo.find({
-      where: { content },
-      relations: ["jobApplication", "sender", "recipient"],
-    });
-    if (!chats || chats.length === 0) {
-      return {
-        message: "No chats found",
-        success: false,
-      };
-    }
-    return {
-      message: "Chats retrieved successfully",
-      data: chats,
-      success: true,
-    };
-  }
-
-  async update(id: number, updateChatDto: UpdateChatDto) {
-    const updated = await this.chatRepo.preload({ id, ...updateChatDto });
+  async update(id: number, updateChatDto: UpdatePrivateChatDto, userId?: number) {
+    const where = userId ? { id, sender: { id: userId } } : { id };
+    const updated = await this.chatRepo.preload({ ...where, ...updateChatDto });
     if (!updated) {
       return {
         message: "Chat not found",
@@ -139,8 +80,25 @@ export class ChatService {
       success: true,
     };
   }
-
-  async remove(id: number) {
+  async remove(id: number, userId?: number) {
+    if (userId) {
+      const chat = await this.chatRepo.update(
+        { id, senderId: userId },
+        { isDeleted: true },
+      );
+      if (!chat) {
+        return {
+          message: "Chat not found",
+          data: { affected: 1 },
+          success: false,
+        };
+      }
+      return {
+        message: "Chat removed successfully",
+        data: { affected: chat.affected },
+        success: true,
+      };
+    }
     const chat = await this.chatRepo.delete({ id });
     if (!chat) {
       return {
@@ -151,6 +109,52 @@ export class ChatService {
     return {
       message: "Chat removed successfully",
       data: { affected: chat.affected },
+      success: true,
+    };
+  }
+
+  async getChatsBySender(senderId: number) {
+    const chats = await this.chatRepo.find({
+      where: { senderId: senderId },
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
+    });
+    if (!chats || chats.length === 0) {
+      return {
+        message: "No chats found",
+        success: false,
+      };
+    }
+    return {
+      message: "Chats retrieved successfully",
+      data: chats,
+      success: true,
+    };
+  }
+
+  async getAllChatsByChatId(chatId: number, userId: number) {
+    const chats = await this.chatRepo.find({
+      where: { chatId: chatId, senderId: userId },
+      relations: [
+        "allChats.user1",
+        "allChats.user2",
+        "allChats.jobApplication",
+        "allChats",
+      ],
+    });
+    if (!chats || chats.length === 0) {
+      return {
+        message: "No chats found",
+        success: false,
+      };
+    }
+    return {
+      message: "Chats retrieved successfully",
+      data: chats,
       success: true,
     };
   }

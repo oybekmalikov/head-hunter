@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { CreateSkillsCategoryDto } from "./dto/create-skills_category.dto";
 import { UpdateSkillsCategoryDto } from "./dto/update-skills_category.dto";
-import { InjectRepository } from "@nestjs/typeorm";
 import { SkillsCategory } from "./entities/skills_category.entity";
-import { Repository } from "typeorm";
 
 @Injectable()
 export class SkillsCategoryService {
   constructor(
     @InjectRepository(SkillsCategory)
-    private readonly skillcategoryRepo: Repository<SkillsCategory>
+    private readonly skillcategoryRepo: Repository<SkillsCategory>,
   ) {}
 
   async create(createSkillCategoryDto: CreateSkillsCategoryDto) {
@@ -22,13 +22,29 @@ export class SkillsCategoryService {
   }
 
   async findAll() {
-    const all = await this.skillcategoryRepo.find();
+    const all = await this.skillcategoryRepo.find({ order: { id: "ASC" } });
     if (!all || all.length === 0) {
       return { message: "No skills categories found.", success: false };
     }
     return {
       message: "List of all skill categories",
       data: all,
+      success: true,
+    };
+  }
+
+  async findAllWithPagination(page: number, limit: number) {
+    const [result, total] = await this.skillcategoryRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: "ASC" },
+    });
+    if (!result || result.length === 0) {
+      return { message: "No skills categories found.", success: false };
+    }
+    return {
+      message: "List of all skill categories",
+      data: { data: result, total, page, limit },
       success: true,
     };
   }
@@ -45,6 +61,27 @@ export class SkillsCategoryService {
       message: "Skill category details",
       date: one,
       success: true,
+    };
+  }
+
+  async findAllByName(name: string) {
+    const skills = await this.skillcategoryRepo
+      .createQueryBuilder("skills_category")
+      .where("skills_category.name LIKE :name", { name: `%${name}%` })
+      .getMany();
+
+    if (!skills.length) {
+      return {
+        success: false,
+        message: "Skill not found",
+        data: [],
+      };
+    }
+
+    return {
+      success: true,
+      message: "Skills found",
+      data: skills,
     };
   }
 

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { JobSeekersModule } from "../job-seekers/job-seekers.module";
 import { SkillsModule } from "../skills/skills.module";
@@ -9,10 +9,11 @@ import { JobSeekerPostingService } from "./job-seeker-posting.service";
 @Module({
   imports: [
     TypeOrmModule.forFeature([JobSeekerPosting]),
-    JobSeekersModule,
+    forwardRef(() => JobSeekersModule),
     SkillsModule,
   ],
   controllers: [JobSeekerPostingController],
   providers: [JobSeekerPostingService],
+  exports: [JobSeekerPostingService],
 })
 export class JobSeekerPostingModule {}

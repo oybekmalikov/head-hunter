@@ -26,6 +26,8 @@ export class UserAuthService {
       id: user.id,
       email: user.email,
       role: user.role,
+      jobSeekerId: user.jobSeekers[0]?.id,
+      employerId: user.employers[0]?.id,
     };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
@@ -48,7 +50,11 @@ export class UserAuthService {
     if (user) {
       throw new BadRequestException("Email already exists!");
     }
-    return this.usersService.create(signInDto);
+    return {
+      data: await this.usersService.create(signInDto),
+      message: "Please check your email for OTP",
+      success: true,
+    };
   }
 
   async signIn(signInDto: SignInDto, res: Response) {
@@ -63,6 +69,15 @@ export class UserAuthService {
     if (!isValidPassword) {
       throw new BadRequestException("Email or password incorrect!2");
     }
+    if (
+      user.role === "employer" &&
+      (!user.employers[0].isVerifiedByAdmin || !user.isActive)
+    ) {
+      throw new BadRequestException("Please wait for admin approval");
+    }
+    if (user.role === "jobSeeker" && !user.isActive) {
+      throw new BadRequestException("Please verify your email");
+    }
     const { accessToken, refreshToken } = await this.generateTokens(user);
 
     res.cookie("refresh_token", refreshToken, {
@@ -73,6 +88,8 @@ export class UserAuthService {
     return {
       message: "User logged in successfully!",
       accessToken,
+      userId: user.id,
+      role: user.role,
     };
   }
 
@@ -102,7 +119,7 @@ export class UserAuthService {
       throw new ForbiddenException("Ruxsat etilmagan foydalanuvchi!");
     }
     const user = await this.usersService.findOne(userId);
-    if (!user && !user!) {
+    if (!user && !user) {
       throw new NotFoundException("User not found");
     }
 
@@ -131,11 +148,7 @@ export class UserAuthService {
     }
     const isOtpValid = await this.mailerService.verifyOtp(email, userOtp, type);
     if (!isOtpValid) {
-      return {
-        message: "OTP is invalid or expired!",
-        data: { email: user.email, type: type, succesfully: false },
-        success: false,
-      };
+      throw new BadRequestException("Invalid OTP");
     }
     if (type === "signup") {
       await this.usersService.activate(user.id);
@@ -144,6 +157,77 @@ export class UserAuthService {
       message: "OTP verified successfully!",
       data: { email: user.email, type: type, succesfully: true },
       success: true,
+    };
+  }
+
+  async forgetPassword(email: string) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    try {
+      await this.mailerService.sendOtp(email, "forget-password");
+      return {
+        message: "Please check your email for OTP",
+        data: { email: user.email, type: "forget-password", succesfully: true },
+        success: true,
+      };
+    } catch (error) {
+      throw new BadRequestException("Failed to send OTP");
+    }
+  }
+
+  async resetPassword(
+    email: string,
+    password: string,
+    confirmPassword: string,
+  ) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        "Password and confirm password do not match",
+      );
+    }
+    const response = await this.usersService.updatePassword(user.id, password);
+    return {
+      message: response.message,
+      success: response.success,
+    };
+  }
+
+  async updatePassword(
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+    userId: number,
+  ) {
+    const user = await this.usersService.findOne(userId);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const isValidPassword = await bcrypt.compare(
+      oldPassword,
+      user.data!.password,
+    );
+    if (!isValidPassword) {
+      throw new BadRequestException("Old password is incorrect");
+    }
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException(
+        "New password and confirm password do not match",
+      );
+    }
+    const response = await this.usersService.updatePassword(
+      userId,
+      newPassword,
+    );
+    return {
+      message: response.message,
+      data: { userId },
+      success: response.success,
     };
   }
 }

@@ -1,5 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString, IsStrongPassword } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsStrongPassword,
+} from "class-validator";
 
 export class CreateUserDto {
   @ApiProperty({
@@ -7,7 +14,7 @@ export class CreateUserDto {
     description: "This is the user's first name",
   })
   @IsNotEmpty({ message: "First name is required!" })
-  @IsString({message: "First name must be a string!"})
+  @IsString({ message: "First name must be a string!" })
   firstName: string;
 
   @ApiProperty({
@@ -15,7 +22,7 @@ export class CreateUserDto {
     description: "This is the user's last name",
   })
   @IsNotEmpty({ message: "Last name is required!" })
-  @IsString({message: "Last name must be a string!"})
+  @IsString({ message: "Last name must be a string!" })
   lastName: string;
 
   @ApiProperty({
@@ -45,7 +52,7 @@ export class CreateUserDto {
     description: "This user's confirm password",
   })
   @IsNotEmpty({ message: "Confirm password is required!" })
-  @IsString({message: "Confirm password must be a string!"})
+  @IsString({ message: "Confirm password must be a string!" })
   confirmPassword?: string;
 
   @ApiProperty({
@@ -61,4 +68,12 @@ export class CreateUserDto {
     description: "This user's avatar url",
   })
   avatarUrl?: string;
+
+  @ApiProperty({
+    example: "1",
+    description: "This user's role",
+  })
+  @IsOptional()
+  @IsString({ message: "Role must be a string!" })
+  role?: string;
 }

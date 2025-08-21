@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { RolesType } from "../../app.constants";
-import { Chat } from "../../chat/entities/chat.entity";
+import { AllChats } from "../../chats/entities/chat.entity";
 import { Employer } from "../../employers/entities/employer.entity";
 import { JobSeeker } from "../../job-seekers/entities/job-seeker.entity";
+import { Notification } from "../../notifications/entities/notification.entity"
 
 @Entity({ name: "users" })
 export class User {
@@ -54,7 +54,7 @@ export class User {
     description: "This user's role",
   })
   @Column({ default: "user" })
-  role: RolesType;
+  role: string;
 
   @ApiProperty({
     example: "/src/something/avatar.jpg",
@@ -67,7 +67,7 @@ export class User {
     example: true,
     description: "This user's activity",
   })
-  @Column({ default: true })
+  @Column({ default: false })
   isActive: boolean;
 
   @ApiProperty({
@@ -88,9 +88,12 @@ export class User {
   @OneToMany(() => JobSeeker, (jobSeeker) => jobSeeker.user)
   jobSeekers: JobSeeker[];
 
-  @OneToMany(() => Chat, (chat) => chat.sender)
-  sentChats: Chat[];
+  @OneToMany(() => AllChats, (allChats) => allChats.user1, { onDelete: "SET NULL" })
+  user1Chats: AllChats[];
 
-  @OneToMany(() => Chat, (chat) => chat.recipient)
-  receivedChats: Chat[];
+  @OneToMany(() => AllChats, (allChats) => allChats.user2, { onDelete: "SET NULL" })
+  user2Chats: AllChats[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }

@@ -1,16 +1,14 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { MailService } from './mail.service';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { join } from 'path';
-import { RedisModule } from '../redis/redis.module';
-import { UsersModule } from '../users/users.module';
+import { MailerModule } from "@nestjs-modules/mailer";
+import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { join } from "path";
+import { RedisModule } from "../redis/redis.module";
+import { MailService } from "./mail.service";
 
 @Module({
   imports: [
     RedisModule,
-    forwardRef(() => UsersModule), // Tsiklik bog'liqlikni oldini olish
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -23,7 +21,7 @@ import { UsersModule } from '../users/users.module';
           },
         },
         template: {
-          dir: join(__dirname, 'templates'),
+          dir: join(__dirname, "templates"),
           adapter: new HandlebarsAdapter(),
         },
       }),

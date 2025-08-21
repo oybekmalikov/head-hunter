@@ -20,7 +20,7 @@ export class CreateEduDto {
   faculty: string;
 
   @ApiProperty({ example: "Magistr", description: "Degree" })
-  @IsString({message: "dagree must be a string"})
+  @IsString({ message: "dagree must be a string" })
   dagree: string;
 
   @ApiProperty({ example: "2020-09-01", description: "Satrt date" })
@@ -36,8 +36,11 @@ export class CreateEduDto {
   @IsDateString({}, { message: "endDate must be a valid date" })
   endDate?: string;
 
-  @ApiProperty({ example: false, description: "Job seeker still studying at university" })
-  @IsBoolean({message: "isCurrent must be a boolean"})
+  @ApiProperty({
+    example: false,
+    description: "Job seeker still studying at university",
+  })
+  @IsBoolean({ message: "isCurrent must be a boolean" })
   isCurrent: boolean;
 
   @ApiProperty({
@@ -46,10 +49,10 @@ export class CreateEduDto {
     required: false,
   })
   @IsOptional()
-  @IsString({message: "description must be a string"  })
+  @IsString({ message: "description must be a string" })
   description?: string;
 
   @ApiProperty({ example: 5, description: "Job seeker ID " })
-  @IsNumber({},{message: "jobSeekerId must be a number"})
+  @IsNumber({}, { message: "jobSeekerId must be a number" })
   jobSeekerId: number;
 }

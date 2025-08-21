@@ -50,21 +50,6 @@ export class CompanyService {
     };
   }
 
-  async findOneByName(name: string) {
-    const data = await this.companyRepo.findOne({ where: { name } });
-    if (!data) {
-      return {
-        message: "Company not found",
-        success: false,
-      };
-    }
-    return {
-      message: "Company retrieved successfully",
-      data,
-      success: true,
-    };
-  }
-
   async update(id: number, updateCompanyDto: UpdateCompanyDto) {
     const updated = await this.companyRepo.preload({ id, ...updateCompanyDto });
     if (!updated) {
@@ -91,6 +76,25 @@ export class CompanyService {
     return {
       message: "Company removed successfully",
       data: { affacted: deleted.affected },
+      success: true,
+    };
+  }
+
+  async getCompanyByName(name: string) {
+    const nameFormatted = name.charAt(0).toUpperCase() + name.slice(1);
+    const company = await this.companyRepo
+      .createQueryBuilder("company")
+      .where("company.name LIKE :name", { name: `%${nameFormatted}%` })
+      .getOne();
+    if (!company) {
+      return {
+        message: "Company not found",
+        success: false,
+      };
+    }
+    return {
+      message: "Company retrieved successfully",
+      data: company,
       success: true,
     };
   }

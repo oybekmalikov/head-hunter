@@ -38,11 +38,18 @@ export class JobApplicationsService {
       success: true,
     };
   }
-  async findOne(id: number) {
+  async findOne(id: number, userId?: number, role?: string) {
+    let where: any = { id };
+    if (role && role === "employer") {
+      where = { ...where, jobPosting: { employerId: userId } };
+    } else if (role && role === "jobseeker" && userId) {
+      where = { ...where, jobSeekerId: userId };
+    }
     const jobApplication = await this.jobApplicationsRepo.findOne({
-      where: { id },
+      where,
       relations: ["jobPosting", "jobSeeker"],
     });
+
     if (!jobApplication) {
       return {
         message: `Job application with id ${id} not found`,
@@ -107,6 +114,31 @@ export class JobApplicationsService {
     };
   }
 
+  async findAllAplicationsByJobSeekerIdAndPagination(
+    jobSeekerId: number,
+    page: number,
+    limit: number,
+  ) {
+    const [jobApplications, total] =
+      await this.jobApplicationsRepo.findAndCount({
+        where: { jobSeekerId: jobSeekerId },
+        relations: ["jobPosting", "jobSeeker"],
+        skip: (page - 1) * limit,
+        take: limit,
+      });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: "No job applications found for this job seeker",
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: { data: jobApplications, total, page, limit },
+      success: true,
+    };
+  }
+
   async findAllApplicationsByJobSeekerIdAndStatus(
     jobSeekerId: number,
     status: string,
@@ -128,9 +160,17 @@ export class JobApplicationsService {
     };
   }
 
-  async findAllApplicationsByJobPostingId(jobPostingId: number) {
+  async findAllApplicationsByJobPostingId(
+    jobPostingId: number,
+    userId?: number,
+    role?: string,
+  ) {
+    let where: any = { jobPostingId: jobPostingId };
+    if (role && role === "employer" && userId) {
+      where = { ...where, jobPosting: { employerId: userId } };
+    }
     const jobApplications = await this.jobApplicationsRepo.find({
-      where: { jobPostingId: jobPostingId },
+      where,
       relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplications || jobApplications.length === 0) {
@@ -149,9 +189,15 @@ export class JobApplicationsService {
   async findAllApplicationsByJobPostingIdAndStatus(
     jobPostingId: number,
     status: string,
+    userId?: number,
+    role?: string,
   ) {
+    let where: any = { jobPostingId: jobPostingId, status: status };
+    if (role && role === "employer" && userId) {
+      where = { ...where, jobPosting: { employerId: userId } };
+    }
     const jobApplications = await this.jobApplicationsRepo.find({
-      where: { jobPostingId: jobPostingId, status: status },
+      where,
       relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplications || jobApplications.length === 0) {
@@ -177,7 +223,8 @@ export class JobApplicationsService {
     });
     if (!jobApplications || jobApplications.length === 0) {
       return {
-        message: "No job applications found for this job posting and job seeker",
+        message:
+          "No job applications found for this job posting and job seeker",
         success: false,
       };
     }
@@ -193,12 +240,32 @@ export class JobApplicationsService {
     jobSeekerId: number,
   ) {
     const jobApplications = await this.jobApplicationsRepo.find({
-      where: { jobPosting: { categoryId: categoryId }, jobSeekerId: jobSeekerId },
+      where: {
+        jobPosting: { categoryId: categoryId },
+        jobSeekerId: jobSeekerId,
+      },
       relations: ["jobPosting", "jobSeeker"],
     });
     if (!jobApplications || jobApplications.length === 0) {
       return {
         message: `No job applications found for this category with id ${categoryId}`,
+        success: false,
+      };
+    }
+    return {
+      message: "Job applications retrieved successfully",
+      data: jobApplications,
+      success: true,
+    };
+  }
+  async findAllApplicationsByEmployerId(employerId: number) {
+    const jobApplications = await this.jobApplicationsRepo.find({
+      where: { jobPosting: { employerId: employerId } },
+      relations: ["jobPosting", "jobSeeker"],
+    });
+    if (!jobApplications || jobApplications.length === 0) {
+      return {
+        message: "No job applications found for this employer",
         success: false,
       };
     }

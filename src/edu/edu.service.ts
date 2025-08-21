@@ -49,7 +49,10 @@ export class EduService {
   }
 
   async findOne(id: number) {
-    const data = await this.eduRepo.findOne({ where: { id }, relations: ["jobSeeker"] });
+    const data = await this.eduRepo.findOne({
+      where: { id },
+      relations: ["jobSeeker"],
+    });
     if (!data) {
       return {
         message: "Edu record not found",
@@ -64,7 +67,7 @@ export class EduService {
   }
 
   async update(id: number, updateEduDto: UpdateEduDto) {
-   const updated = await this.eduRepo.preload({ id, ...updateEduDto })
+    const updated = await this.eduRepo.preload({ id, ...updateEduDto });
     if (!updated) {
       return {
         message: "Edu record not found for update",
@@ -79,7 +82,7 @@ export class EduService {
   }
 
   async remove(id: number) {
-    const deleted=await this.eduRepo.delete({id});
+    const deleted = await this.eduRepo.delete({ id });
     if (deleted.affected === 0) {
       return {
         message: "Edu record not found for deletion",
@@ -89,7 +92,25 @@ export class EduService {
     // await this.jobSeekerService.removeEduFromJobSeeker(id);
     return {
       message: "Edu deleted successfully",
-      data: {affected: deleted.affected},
+      data: { affected: deleted.affected },
+      success: true,
+    };
+  }
+
+  async getAllEducationByJobSeekerId(jobSeekerId: number) {
+    const data = await this.eduRepo.find({
+      where: { jobSeekerId },
+      relations: ["jobSeeker"],
+    });
+    if (data.length === 0) {
+      return {
+        message: "No Edu records found",
+        success: false,
+      };
+    }
+    return {
+      message: "Edu records retrieved successfully",
+      data,
       success: true,
     };
   }
