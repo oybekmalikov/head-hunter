@@ -14,7 +14,10 @@ export async function start() {
     app.setGlobalPrefix("api");
     app.use(cookieParser());
     app.enableCors({
-      origin: "*",
+      origin: {
+        "http://localhost:3000": true,
+        // "http://localhost:3030": true,
+      },
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
       credentials: false,
     });

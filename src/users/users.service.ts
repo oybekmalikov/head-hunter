@@ -208,6 +208,19 @@ export class UsersService {
       success: true,
     };
   }
+
+  async updatePasswordByEmail(email: string, password: string) {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    const hashedPassword = await bcrypt.hash(password, 7);
+    await this.userRepo.update({ email }, { password: hashedPassword });
+    return {
+      message: "Password updated successfully!",
+      success: true,
+    };
+  }
   async userProfile(id: number) {
     const user = await this.userRepo.findOne({
       where: { id },
